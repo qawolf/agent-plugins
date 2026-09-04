@@ -1,0 +1,32 @@
+{
+  "name": "qawolf",
+  "version": "0.1.0",
+  "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser from your editor.",
+  "author": {
+    "name": "QA Wolf",
+    "url": "https://www.qawolf.com"
+  },
+  "homepage": "https://docs.qawolf.com",
+  "repository": "https://github.com/qawolf/agent-plugins",
+  "keywords": ["qa", "testing", "e2e", "playwright", "browser", "qawolf"],
+  "skills": "./skills/",
+  "mcpServers": "./mcp/codex.json",
+  "interface": {
+    "displayName": "QA Wolf",
+    "shortDescription": "Request, run, and debug end-to-end tests without leaving the editor",
+    "longDescription": "QA Wolf writes and maintains end-to-end tests for your application. This plugin gives your coding agent the QA Wolf public API as tools: ask for coverage of a user journey in plain language, run existing flows against an environment, read what failed and why, manage environment variables and issues, and drive a live cloud browser to reproduce a problem.",
+    "developerName": "QA Wolf",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://www.qawolf.com",
+    "privacyPolicyURL": "https://www.qawolf.com/legal/privacy-policy",
+    "termsOfServiceURL": "https://www.qawolf.com/legal/terms",
+    "defaultPrompt": [
+      "Ask QA Wolf to cover the checkout journey in this repository",
+      "Run the smoke-tagged QA Wolf flows and summarize what failed",
+      "Open a QA Wolf browser and reproduce the login bug"
+    ],
+    "brandColor": "#000000",
+    "screenshots": []
+  }
+}

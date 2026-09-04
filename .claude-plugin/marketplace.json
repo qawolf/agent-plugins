@@ -1,0 +1,18 @@
+{
+  "name": "qawolf",
+  "description": "QA Wolf plugins for test coverage, test runs, and cloud browser workflows.",
+  "owner": {
+    "name": "QA Wolf",
+    "url": "https://www.qawolf.com"
+  },
+  "plugins": [
+    {
+      "name": "qawolf",
+      "source": "./plugins/qawolf",
+      "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser from your editor.",
+      "version": "0.1.0",
+      "category": "testing",
+      "keywords": ["qa", "testing", "e2e", "playwright", "browser", "qawolf"]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "qawolf",
+  "displayName": "QA Wolf",
+  "version": "0.1.0",
+  "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser from your editor.",
+  "author": {
+    "name": "QA Wolf",
+    "url": "https://www.qawolf.com"
+  },
+  "homepage": "https://docs.qawolf.com",
+  "repository": "https://github.com/qawolf/agent-plugins",
+  "keywords": ["qa", "testing", "e2e", "playwright", "browser", "qawolf"],
+  "skills": "./skills/",
+  "mcpServers": "./mcp/claude.json"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "qawolf",
+  "interface": {
+    "displayName": "QA Wolf"
+  },
+  "plugins": [
+    {
+      "name": "qawolf",
+      "source": {
+        "source": "local",
+        "path": "./plugins/qawolf"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "qawolf": {
+      "type": "http",
+      "url": "https://app.qawolf.com/api/mcp",
+      "bearer_token_env_var": "QAWOLF_API_KEY"
+    }
+  }
+}

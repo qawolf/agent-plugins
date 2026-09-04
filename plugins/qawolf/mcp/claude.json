@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "qawolf": {
+      "type": "http",
+      "url": "${QAWOLF_MCP_URL:-https://app.qawolf.com/api/mcp}",
+      "headers": {
+        "Authorization": "Bearer ${QAWOLF_API_KEY}"
+      }
+    }
+  }
+}
