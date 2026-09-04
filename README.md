@@ -45,7 +45,15 @@ claude plugin validate ./plugins/qawolf --strict
 
 Codex can load this checkout with `codex plugin marketplace add ./`. Inspect it with `codex plugin list --marketplace qawolf --available --json`.
 
-Both manifests use the same version. Bump the plugin manifests and the Claude marketplace entry together when publishing an update.
+## Release automation
+
+Automatic publishing starts after the backend release integration is deployed and its GitHub app has access to this repository.
+
+The QA Wolf backend release pipeline manages `plugins/qawolf` and the QA Wolf entry in each marketplace. Plugin changes belong in the platform source, not in this repository's generated bundle.
+
+After a successful backend release, the sync copies the approved plugin files from the released commit. It increments the public patch version when content changes and uses the same version in both manifests and the Claude marketplace. Unchanged releases do not create commits. The sync preserves this README and unrelated repository files.
+
+Repository updates do not publish a new version in OpenAI's official directory. That directory requires a separate scan, review, and publication step.
 
 ## Support and policies
 
