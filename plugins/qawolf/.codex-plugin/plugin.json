@@ -1,6 +1,6 @@
 {
   "name": "qawolf",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser from your editor.",
   "author": {
     "name": "QA Wolf",

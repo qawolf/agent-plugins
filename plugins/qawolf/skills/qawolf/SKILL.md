@@ -1,6 +1,6 @@
 ---
 name: qawolf
-description: Ask QA Wolf for end-to-end test coverage, run flows, read what failed, and drive a live cloud browser through the qawolf MCP tools. Use when the user wants tests written or run for their app, asks what failed in QA Wolf, wants to answer a question from QA Wolf, or wants a real browser to reproduce a problem.
+description: Onboard a repository to QA Wolf, choose its first user story, request end-to-end test coverage, run flows, and drive a cloud browser through the qawolf MCP tools. Use when the user wants to get started with QA Wolf, create their first flow, have tests written or run, investigate a failure, answer a QA Wolf question, or reproduce a problem in a browser.
 ---
 
 # QA Wolf
@@ -9,9 +9,13 @@ The `qawolf` MCP server exposes the QA Wolf public API as tools. Every tool name
 
 ## Before you start
 
-1. Call `whoami` once. It reports which team, organization, or user the credential belongs to.
-2. If `whoami` reports a missing or rejected credential, stop and tell the user to set `QAWOLF_API_KEY` to a team API key from the QA Wolf app.
-3. If the user names an environment, resolve it with `environment_find` before any other call.
+1. Connect through the MCP client's OAuth 2.1 sign-in when the deployed connection supports it. The API-key-only preview still uses `QAWOLF_API_KEY`, configured outside the chat as described in the plugin README.
+2. Call `whoami` to verify which team, organization, or user the connection acts as. If authentication fails, stop and ask the user to sign in or fix the client configuration before continuing. Never ask for OAuth tokens or QA Wolf API keys in chat.
+3. If the user names an environment, resolve it with `environment_find` after authentication and before starting work.
+
+## Onboard a repository
+
+For onboarding or a first-flow request, read [Onboarding](references/onboarding.md) before collecting application access or calling `agent_send`. It covers choosing a story from the local codebase, confirming staging or a production test account, obtaining approved credentials, sending instructions without source code, and sharing the session URL while monitoring QA Wolf's work.
 
 ## Request coverage
 
@@ -58,7 +62,7 @@ CAUTION: A runner bills for as long as it exists. Call `runner_terminate` as soo
 
 Tool failures return `isError: true` with a text message. The transport can still return HTTP 200. Read the message rather than looking for an HTTP status in it.
 
-- Missing or rejected credential: tell the user to check `QAWOLF_API_KEY`.
+- Missing or rejected credential: ask the user to sign in again through the MCP client, or check `QAWOLF_API_KEY` if using the API-key-only preview.
 - Billing prevented the call: tell the user and stop.
 - Credential authenticated but is not allowed: for `runner_*`, the user needs a team API key.
 - Rate limited or temporarily unavailable: wait before retrying a read. Do not repeat a write without checking whether it took effect.
