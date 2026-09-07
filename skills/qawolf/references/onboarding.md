@@ -1,80 +1,60 @@
-# Onboard a repository to QA Wolf
+# Create the first flow
 
-Help the user create one useful end-to-end flow, then give them a link to follow QA Wolf's work. Keep the first request small enough to explain and verify. Logging in is often a good first story, but choose it from the customer's app rather than assuming every app needs the same test.
+Choose one useful user journey and give the user a link to QA Wolf's work. Login can be a good first story, but choose from the app rather than assuming.
 
-## 1. Authenticate with QA Wolf
+## Confirm QA Wolf access
 
-The current plugin is an API-key-only preview. Follow your client's [platform setup](platforms.md) outside the chat, then start a fresh MCP client session. A native MCP plugin configures the connection; a skill-only installation does not. Neither authenticates the connection without a credential. Never ask the user to paste a QA Wolf API key in chat or send one in a tool message.
+Complete the skill's setup checks: `whoami`, the intended workspace, and available `agent_send` and `agent_get` tools. Stop if any check fails. Follow [platform setup](platforms.md) for API-key configuration outside chat; OAuth is not available.
 
-OAuth 2.1 is the planned sign-in experience, not a flow provided by the shipped configuration. Do not invent an authorization URL or ask the user to find an unavailable sign-in flow. When OAuth support ships, the client should handle authorization, token storage, and refresh without exposing tokens in chat.
+Supply `workspaceId` for organization or user credentials. Resolve IDs through available tools rather than guessing. QA Wolf authentication does not sign into the test application.
 
-Call `whoami` to verify the connection. If the tools are unavailable or authentication fails, stop and ask the user to fix their client configuration before continuing. Confirm the QA Wolf workspace; an organization or user identity alone does not identify the workspace to use. `agent_send` needs `workspaceId` for organization and user credentials. Resolve the selected workspace and any named QA Wolf environment through the available tools rather than guessing IDs.
+## Agree on the story and target
 
-Check that the connected server exposes both `agent_send` and `agent_get`. If either is absent, explain that coverage creation needs a newer deployment. Do not substitute `automate`, which cannot create new flows.
+Read only enough local documentation, routes, screens, and test descriptions to identify a small journey. Keep source code local. If the repository or behavior is unclear, ask.
 
-Signing into QA Wolf does not sign into the customer's application. Treat the test application's account as a separate credential and ask for it only when the chosen story needs it.
+Propose the story in user terms, with an observable result: "A test user signs in and reaches their account dashboard." Confirm the story and target URL together. A URL found in documentation is only a candidate; the app URL and QA Wolf environment ID are separate choices.
 
-## 2. Identify the first user story
+Prefer staging. Production requires explicit approval of the URL, dedicated test account, and allowed actions. Do not use ordinary customer accounts, make purchases, send messages, or change customer data without approval.
 
-Read the local repository's README, route definitions, relevant screens, and existing test descriptions. Inspect only enough to understand a small, valuable user journey. Keep source code local.
+## Arrange test access
 
-For a login story, identify the user role, how they reach the sign-in page, the visible steps, and the result that proves login succeeded. Prefer an observable outcome such as the account dashboard and signed-in user name, not merely the absence of an error.
+Ask only for what the story needs:
 
-Explain the proposed story in customer terms: "A test user signs in with email and password and reaches their account dashboard." Cite local evidence when useful. Ask whether this is the right first flow before starting work. If the repository is unavailable or the journey is unclear, ask for an app description instead of inventing behavior.
+- Base URL, entry route, user role, and starting state.
+- Dedicated test credentials, SSO, MFA, email-code, or network requirements.
+- Tenant, seed data, feature flags, expected result, and cleanup.
 
-## 3. Confirm the target and collect access
+Ask for credentials through an approved secure channel, or request permission to search a specific source and environment. Search only that source, read relevant entries, and confirm the account is for testing. Do not dump secret files, search unrelated accounts, or bypass missing access.
 
-Prefer the staging environment. Find a likely URL in project documentation or non-secret configuration, but treat it as a candidate until the user confirms it. Distinguish the app's URL from the QA Wolf environment ID; selecting one does not verify the other.
+Never echo passwords in progress messages or write them into repository files or public issues. Prefer a credential reference that QA Wolf can resolve. Otherwise send only approved test credentials through the authenticated MCP call. Never send QA Wolf API keys, OAuth tokens, or unrelated secrets.
 
-Ask the user to approve the story and target together. For example:
+Before starting, confirm approval to create the flow, use the target and account, and share the required access with QA Wolf. Permission to find credentials is not permission to start testing.
 
-> I suggest starting with email-and-password login and checking that the account dashboard appears. Is this the correct staging URL? Can you provide a dedicated test account through an approved secure channel, or may I look for one in a specific source you authorize? I'll pass only the access details needed for this flow to QA Wolf.
+## Send the request
 
-If staging is unavailable, ask whether a dedicated production test account is appropriate. Proceed against production only after the user confirms the URL, account, and allowed actions. Do not use an ordinary customer account or perform purchases, send messages, or change real customer data without explicit approval.
+Call `agent_send` with the confirmed `workspaceId` when required and the selected `environmentId` when known. Omit `sessionId` for new work; reuse it for follow-ups.
 
-Collect only what the chosen flow needs:
-
-- The confirmed base URL and any entry route.
-- The account's role and approved test credentials, if login is required.
-- Any SSO, MFA, email-code, or network access requirements that QA Wolf must handle.
-- Required tenant selection, seed data, feature flags, and starting state.
-- The expected visible result and any cleanup or actions to avoid.
-
-If the user authorizes credential discovery, restrict the search to the agreed source and environment. Read only relevant entries from an approved QA Wolf environment or secret store; do not dump secret files or search unrelated accounts. Confirm that a discovered account is intended for testing before using it. If access is missing, ask the user rather than bypassing authentication.
-
-Do not echo passwords in progress messages, write them into repository files, or include them in public issues. Prefer an approved credential reference when you have verified that QA Wolf can resolve it. Otherwise, send only the approved test-account credentials through the authenticated MCP call. Never include QA Wolf OAuth tokens, API keys, or unrelated secrets.
-
-Before sending, confirm that the user has approved creating this first flow, the target URL, the test account or access method, and sharing those access details with QA Wolf. A URL found in the repository or permission to search for credentials is not approval to start testing.
-
-## 4. Ask QA Wolf to create the flow
-
-Call `agent_send` once the required context and approval are in place. Supply the confirmed `workspaceId` when required and the selected `environmentId` when known. Omit `sessionId` for new work; reuse it only when continuing an existing session.
-
-Write the `message` as instructions for someone who can use the app but has not read its code. Include the confirmed URL, approved credentials or a verified accessible reference, the user's goal, visible steps, expected result, and relevant constraints. Describe UI labels and behavior in plain language.
-
-Use this outline, filling only the fields relevant to the approved story. Do not send unresolved placeholders:
+Describe behavior for someone who can use the app but has not read its code. Include only relevant, confirmed details; remove unused fields and unresolved placeholders:
 
 ```text
-Create one end-to-end flow for: <approved user story>.
-Target URL: <confirmed staging URL or explicitly approved production URL>.
-Test access: <approved dedicated account credentials or verified accessible reference>.
-Starting state: <entry page, role, tenant, and required setup>.
-Steps: <short sequence of visible user actions>.
-Success: <observable result that proves the story worked>.
-Constraints: <MFA or network requirements, actions to avoid, and cleanup>.
-If access fails or an essential detail is missing, ask before proceeding.
+Create one end-to-end flow for: <approved story>.
+Target: <confirmed URL>.
+Access: <approved test credentials or accessible reference>.
+Starting state: <role, tenant, entry page, and setup>.
+Steps: <visible user actions>.
+Success: <observable result>.
+Constraints: <access requirements, prohibited actions, and cleanup>.
+If access fails or essential context is missing, ask before proceeding.
 ```
 
-Do not attach or copy repository source, code snippets, diffs, test code, configuration files, or archives. Translate useful findings from the codebase into behavioral instructions instead. Send the minimum context needed for this flow, not a repository summary.
+Do not send source, code snippets, diffs, test code, configuration files, archives, or a repository summary. Translate local findings into the behavior this flow must cover.
 
-If `agent_send` times out, do not blindly send it again: the work may already have started. Use `agent_get` if a session ID is known. Otherwise, explain the uncertain outcome and resolve it before risking a duplicate request.
+If the request times out, do not blindly resend it. Use `agent_get` if you have the session ID. Otherwise report the uncertain outcome and resolve it before risking duplicate work.
 
-## 5. Share the session URL and monitor
+## Share and follow the result
 
-On a successful response, give the user the exact `url` returned by `agent_send` immediately. Say that QA Wolf has accepted the request and is working; acceptance does not mean a flow has been created. Keep the returned `sessionId` for follow-up calls. If no URL is returned, report that limitation rather than constructing a link.
+Share the exact returned `url` immediately and retain `sessionId`. Report acceptance, not completed flow creation. If no URL arrives, say so rather than constructing one.
 
-Poll `agent_get` with the session ID, waiting 30 to 60 seconds between calls. Replies accumulate, so summarize only new information and do not repeat credentials. If the client cannot keep monitoring, tell the user and leave them the session link rather than promising background work.
+Poll `agent_get` every 30 to 60 seconds. Summarize new replies without repeating credentials. On `waiting-for-you`, answer from confirmed context or ask the user for missing decisions, access, or permission. Reply with `agent_send` in the same session.
 
-When the status is `waiting-for-you`, read the question and any choices. Answer from confirmed context, or ask the user when new credentials, permissions, or decisions are needed. Send the answer through `agent_send` with the same `sessionId`; do not start another session.
-
-Stop polling on `completed`, `failed`, or `cancelled`. Summarize the reported result and include the session link again. Report successful flow creation only when QA Wolf's replies confirm it; do not infer that a flow passed a test run merely because the session completed.
+Stop on `completed`, `failed`, or `cancelled`. Link the session and report the confirmed outcome. Completion alone does not prove a flow was created or passed. If you cannot keep monitoring, say so and leave the link; do not promise background work.

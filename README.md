@@ -66,8 +66,6 @@ Restart the client or start a fresh session, then call `whoami` and confirm the 
 - Root manifests and catalogs are client entrypoints, not QA Wolf server code.
 - `AGENTS.md` supplies a short fallback for instruction-aware clients. Append its QA Wolf section rather than replacing a project's existing instructions.
 
-The layout uses the thin-adapter pattern demonstrated by [Ponytail](https://github.com/DietrichGebert/ponytail), without its always-on hooks or persona behavior.
-
 ## Validation
 
 ```bash

@@ -1,72 +1,101 @@
 ---
 name: qawolf
-description: Onboard a repository to QA Wolf, choose its first user story, request end-to-end test coverage, run flows, and drive a cloud browser through the qawolf MCP tools. Use when the user wants to get started with QA Wolf, create their first flow, have tests written or run, investigate a failure, answer a QA Wolf question, or reproduce a problem in a browser.
+description: Use QA Wolf MCP tools to onboard a repository, request end-to-end coverage, run flows, investigate failures, manage environments and issues, or drive a cloud browser. Use for first-flow requests and questions about QA Wolf tests.
 ---
+
+<!-- Generated from skill/qawolf.template.md and the public API contracts with nx gen agent-plugins. -->
 
 # QA Wolf
 
-The `qawolf` MCP server exposes the QA Wolf public API as tools. Every tool name is the API contract path with dots replaced by underscores, so `run_create` is `run.create`. Apex authenticates the credential on the connection. Each tool acts as that team, organization, or user.
+## Start here
 
-## Before you start
+1. Complete [client setup](references/platforms.md) outside chat, then start a fresh session. Installation alone does not authenticate. The preview uses API keys, not OAuth.
+2. Call `whoami` and confirm the identity and workspace. Stop if authentication fails or required tools are missing. Never request QA Wolf keys or tokens in chat.
+3. Resolve named environments with `environment_find`. Organization and user credentials require `workspaceId` where the tool requests it.
 
-1. The current connection uses API-key authentication. Complete your client's [platform setup](references/platforms.md) outside chat, then start a fresh client session. Native MCP plugins configure a connection; skill-only installs do not. Neither authenticates the connection without a credential.
-2. Call `whoami` to verify which team, organization, or user the connection acts as. If the tools are unavailable or authentication fails, stop and ask the user to fix the client configuration before continuing. Never ask for OAuth tokens or QA Wolf API keys in chat.
-3. If the user names an environment, resolve it with `environment_find` after authentication and before starting work.
+For onboarding or a first flow, read [Onboarding](references/onboarding.md) before collecting access or calling `agent_send`. Keep source code local.
 
-OAuth 2.1 sign-in is planned, but is not available through the shipped configuration. Do not invent an authorization URL or send the user looking for an OAuth flow that this plugin does not provide.
+## Tools
 
-## Onboard a repository
+This generated index gives each tool's purpose. Before using a tool, read its live description and input schema for requirements, side effects, and retry rules. The deployed server may be older than this catalog. API paths become MCP names by replacing dots with underscores.
 
-For onboarding or a first-flow request, read [Onboarding](references/onboarding.md) before collecting application access or calling `agent_send`. It covers choosing a story from the local codebase, confirming staging or a production test account, obtaining approved credentials, sending instructions without source code, and sharing the session URL while monitoring QA Wolf's work.
+`read` tools do not change team data, but runner reads can keep a billed pod alive. `write` tools can change data or start billed work.
+
+<!-- tools-table:start -->
+
+<!-- prettier-ignore -->
+| Tool | Kind | What it does |
+| --- | --- | --- |
+| `agent_get` | read | Read what the QA Wolf AI has said and whether it is still working. |
+| `agent_send` | write | Ask the QA Wolf AI to do a piece of work in plain language, such as covering a user journey, investigating a failing run, or fixing a broken flow. |
+| `automate` | write | Request automation for draft flows. |
+| `environment_create` | write | Create an environment on the caller's team and return it in the environment.get shape. |
+| `environment_deleteVariable` | write | Remove one environment variable by name. |
+| `environment_find` | read | List the team's environments, newest first. |
+| `environment_get` | read | Read a single environment's name, kind, standing run health, flow-code branch and reconciliation state, run concurrency limit, and termination state. |
+| `environment_getVariable` | read | Read the values of named environment variables in one call. |
+| `environment_listVariableNames` | read | Use this to answer which QA Wolf environment variables are available to test code. |
+| `environment_setVariable` | write | Create or replace an environment variable. |
+| `environment_update` | write | Update an environment owned by the caller's team and return it in the environment.get shape. |
+| `flow_addTag` | write | Assign an existing tag to the selected flows. |
+| `flow_list` | read | List the flows of an environment at its latest reconciled commit, or, when an AI task is given, the flows on that task's branch. |
+| `flow_update` | write | Move a flow between draft and active readiness. |
+| `issue_addFlows` | write | Add flows to a coverage request owned by the caller's team. |
+| `issue_create` | write | Create a bug or coverage request issue for the caller's team. |
+| `issue_find` | read | List the team's bug reports, maintenance reports, or coverage requests, newest first. |
+| `issue_get` | read | Get an issue by id. |
+| `issue_update` | write | Update an issue owned by the caller's team. |
+| `run_create` | write | Create a run for the selected flows and/or tags in an environment. |
+| `run_diagnose` | write | Diagnose failed flows in a run as reproductions of a bug or maintenance report owned by the caller's team. |
+| `run_find` | read | List an environment's recent runs, newest first. |
+| `run_get` | read | Get a run's status, per-flow results, and links. |
+| `run_reattempt` | write | Request new attempts for a run's flows, in the same run. |
+| `runner_evaluateSnippet` | write | Evaluate a snippet against whatever the runner's browser is showing right now. |
+| `runner_get` | read | Report whether a runner is running under this id on the caller's team. |
+| `runner_highlightSelector` | write | Highlight the elements a selector matches on an interactive runner's live page, and answer how many it matched. |
+| `runner_importPackage` | write | Install a package into an interactive runner's live run and import it, so a snippet or a selection can use it without a full run to reinstall dependencies. |
+| `runner_inspect` | read | Inspect one thing on an interactive runner: an element's HTML, the page's HTML simplified for a model, or a top-level variable's value as JSON. \`nothing-to-inspect\` means the runner had nothing to answer with: no live page, no element matching the selector, or no variable under that name. |
+| `runner_inspectMobile` | read | Inspect one thing on a mobile interactive runner: the Appium session's status, the WebView contexts available, the current context's page source, or the elements at a point or carrying some text. |
+| `runner_launch` | write | Launch an interactive runner on the caller's team under an id the caller chooses. |
+| `runner_performAction` | write | Perform one raw browser action on an interactive runner: click, double\_click, move, drag, scroll, keypress, type, or navigate. |
+| `runner_promoteSnapshot` | write | Accept a run's screenshot as the new baseline for an image diff, on the runner that produced it. |
+| `runner_readJournal` | read | Read a window of one of an interactive runner's journal streams, the newest few, everything after a cursor, or everything belonging to one run. |
+| `runner_runFlow` | write | Run a flow on an interactive runner. |
+| `runner_stopRun` | write | Stop what a runner is currently executing, leaving the runner up and its browser on whatever page the run reached. |
+| `runner_takeScreenshot` | read | Take one screenshot of an interactive runner's screen. |
+| `runner_terminate` | write | End an interactive runner on the caller's team, and the pod it runs on with it. |
+| `tag_create` | write | Create a tag on the caller's team. |
+| `tag_list` | read | List the team's tags, alphabetical by name. |
+| `whoami` | read | Identify the team, organization, or user authenticated on the MCP connection. |
+
+<!-- tools-table:end -->
 
 ## Request coverage
 
-First check that the connected server exposes both `agent_send` and `agent_get`. Tool availability depends on the deployed server version. If either is absent, tell the user that this server cannot handle coverage requests yet. Do not substitute `automate`, which cannot create new flows.
+Require both `agent_send` and `agent_get`. If either is missing, stop; `automate` cannot create new flows.
 
-When both tools are available, use `agent_send` when the user wants QA Wolf to write, fix, or investigate tests.
+1. Send the approved journey, target URL, access details, and constraints with `agent_send`. For new work, omit `sessionId`.
+2. Share the returned `url` immediately. Acceptance is not completed flow creation.
+3. Poll `agent_get` with the returned `sessionId` every 30 to 60 seconds. Replies accumulate; report only new information.
+4. On `waiting-for-you`, answer from confirmed context or ask the user. Reply through `agent_send` with the same `sessionId`.
+5. Stop on `completed`, `failed`, or `cancelled`. Report what QA Wolf confirmed, not an inferred passing run.
 
-1. Write the message in plain language. Name the journey, the part of the app, and anything QA Wolf cannot discover on its own: test accounts, feature flags, how to reach staging.
-2. `agent_send` answers as soon as the request is accepted, with a `sessionId` and a `url`. Give the `url` to the user.
-3. Poll `agent_get` with that `sessionId`. Wait 30 to 60 seconds between polls. The work runs for minutes to tens of minutes.
-4. If the status is `waiting-for-you`, the last reply is a question. If the reply carries `choices`, pick one or ask the user. Answer with `agent_send` and the same `sessionId`.
-5. Stop polling when the status is `completed`, `failed`, or `cancelled`. Report the last reply to the user.
-
-Replies accumulate, so each `agent_get` returns the earlier replies again. Report only the new ones.
+If sending times out, do not resend blindly. Use `agent_get` when the session ID is known; otherwise report the uncertain outcome before risking duplicate work.
 
 ## Run flows
 
-1. Resolve the intended environment with `environment_find`. Supply the confirmed `workspaceId` for organization or user credentials. If no environment was named, offer the returned `defaultEnvironmentId` and confirm the choice before starting a run.
-2. Find flows with `flow_list`, or tags with `tag_list`.
-3. Use `run_find` with the selected `environmentId` to look up past runs before you create a new one.
-4. Start a run with `run_create`. Send the selected `environmentId` and `flowIds`, `tagNames`, or both. At least one flow or tag is required.
-5. Read the result with `run_get`. A run takes minutes, so wait between reads.
+1. Resolve the environment with `environment_find`. If none was named, offer `defaultEnvironmentId` and confirm it.
+2. Select flows with `flow_list` or tags with `tag_list`; check previous runs with `run_find`.
+3. Call `run_create` with `environmentId` and at least one flow or tag. Poll `run_get` for results.
 
-`run_create` has no idempotency key. If the call times out, call `run_find` with the same `environmentId` before you send it again. Otherwise you start a second run.
+Both `run_create` and `run_find` require `environmentId`. After a timeout, check `run_find` in the same environment before resending; run creation has no idempotency key.
 
 ## Drive a browser
 
-The `runner_*` tools give you a live cloud browser. They need a team API key. An organization or user key gets an authorization error on every one of them.
+Browser tools require a team API key. Launch with a unique `id` and `runnerName: "playwright"`. Use `runner_performAction` to start the desktop, then inspect `runner_takeScreenshot` before further actions. For `runner_runFlow`, send `env` or `environmentId`, not both.
 
-CAUTION: A runner bills for as long as it exists. Call `runner_terminate` as soon as the work is done, and before you end your turn.
+Runners bill until terminated. Call `runner_terminate` when done, before ending your turn.
 
-1. `runner_launch` with a unique `id` and `runnerName: "playwright"`.
-2. `runner_performAction` starts the desktop. A fresh runner answers `screen-needs-a-run` to a screenshot until an action runs.
-3. `runner_takeScreenshot` returns an image block. Look at it before the next action.
-4. `runner_runFlow` runs flow code on the runner. Send `env` or `environmentId`, not both.
-5. `runner_terminate` when you are done.
+## Handle errors
 
-## Manage environments and issues
-
-- `environment_setVariable`, `environment_getVariable`, and `environment_deleteVariable` manage secrets and settings per environment.
-- `issue_find`, `issue_get`, `issue_create`, and `issue_update` manage QA Wolf issues.
-- `environment_update` and `issue_update` need at least one field to change.
-
-## Errors
-
-Tool failures return `isError: true` with a text message. The transport can still return HTTP 200. Read the message rather than looking for an HTTP status in it.
-
-- Missing or rejected credential: ask the user to sign in again through the MCP client, or check `QAWOLF_API_KEY` if using the API-key-only preview.
-- Billing prevented the call: tell the user and stop.
-- Credential authenticated but is not allowed: for `runner_*`, the user needs a team API key.
-- Rate limited or temporarily unavailable: wait before retrying a read. Do not repeat a write without checking whether it took effect.
-- Invalid input: the message names the field. Correct it and call again.
+Check `isError` and the tool message; HTTP 200 can still carry a failure. Stop for credential, permission, or billing errors. Correct invalid inputs. Wait before retrying a transient read; check whether a write took effect before repeating it.

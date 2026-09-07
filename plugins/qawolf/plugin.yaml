@@ -1,5 +1,5 @@
 name: qawolf
-version: 0.1.2
+version: 0.1.3
 description: QA Wolf test workflows. Configure the MCP server separately.
 requires_env:
   - name: QAWOLF_API_KEY
