@@ -6,7 +6,7 @@ This is a preview distributed through the [QA Wolf plugin repository](https://gi
 
 ## Connect to QA Wolf
 
-QA Wolf clients connect to `https://app.qawolf.com/api/mcp`. The endpoint must be available in the deployed QA Wolf backend. Installing the plugin does not deploy the server.
+QA Wolf clients connect to `https://app.qawolf.com/api/mcp`. Installing the plugin does not authenticate your connection. Check the [preview status](https://github.com/qawolf/agent-plugins#status) before use.
 
 Get a team API key from the QA Wolf app. Set `QAWOLF_API_KEY` in the environment that launches your client. Do not commit the key or paste it into a chat, issue, or screenshot.
 
@@ -46,18 +46,18 @@ The public repository also exposes the complete skill at `skills/qawolf/` and a 
 - "Run the smoke-tagged QA Wolf flows and summarize what failed."
 - "Open a QA Wolf browser and reproduce the login bug."
 
-Coverage requests use `agent_send` and `agent_get`. The skill checks that the connected server exposes both tools before using them. If either is absent, that deployment does not yet support coverage requests.
+Coverage requests use `agent_send` and `agent_get`. The skill checks that both tools are available before using them.
 
 A cloud browser bills while its runner exists. The skill instructs the agent to terminate the runner when the work ends.
 
 ## Troubleshooting
 
-- Connection failure or HTTP 404: the configured endpoint is unavailable. Check the URL and server deployment; installing the plugin cannot fix a missing route.
+- Connection failure or HTTP 404: check the configured URL and [preview status](https://github.com/qawolf/agent-plugins#status). Reinstalling the plugin cannot fix an unavailable service.
 - Missing or rejected credential: check `QAWOLF_API_KEY` in the client process and restart the client after changing it.
 - Browser-tool authorization error: use a team API key with access to the target workspace.
-- Missing agent tools: wait for a deployment that includes them. Other tools can still work.
+- Missing agent tools: coverage requests require both `agent_send` and `agent_get`. Contact QA Wolf support if either is unavailable.
 
-Claude Code supports a full endpoint override through `QAWOLF_MCP_URL`. For example, local development can use `http://localhost:3000/api/mcp`. Codex uses a literal URL in `mcp/codex.json`; edit a local checkout and reinstall that plugin when testing another deployment. Never send a production key to an untrusted endpoint.
+Use the [platform guide](skills/qawolf/references/platforms.md) for client-specific connection settings. Never send a QA Wolf API key to an untrusted endpoint.
 
 Report plugin problems through [GitHub issues](https://github.com/qawolf/agent-plugins/issues). Do not include API keys, passwords, or customer test data in public reports.
 
@@ -68,9 +68,3 @@ The plugin sends tool arguments to QA Wolf and returns the requested API results
 - [QA Wolf privacy policy](https://www.qawolf.com/legal/privacy-policy)
 - [QA Wolf terms](https://www.qawolf.com/legal/terms)
 - [QA Wolf documentation](https://docs.qawolf.com)
-
-## Package layout
-
-Claude Code reads `.claude-plugin/plugin.json`; Codex reads `.codex-plugin/plugin.json`. Both load `skills/qawolf/SKILL.md`.
-
-The manifests point to separate MCP configs. Claude uses an authorization header with `${QAWOLF_API_KEY}` in `mcp/claude.json`. Codex uses `bearer_token_env_var` in `mcp/codex.json`. There is no shared plugin-root `.mcp.json` because clients use different credential formats. Amp alone reads the skill's sibling `mcp.json`; other clients use their native plugin manifest or separately configured MCP connection.
