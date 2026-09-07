@@ -4,7 +4,7 @@ Use QA Wolf from coding agents to request test coverage, run flows, inspect resu
 
 ## Status
 
-This is an API-key preview, not an approved listing in the providers' official directories. At the last availability check on 2026-09-07, `https://app.qawolf.com/api/mcp` returned HTTP 404. Check service availability before use. Installing the plugin does not authenticate your connection. OAuth sign-in is not yet supported.
+This is an API-key preview, not an approved listing in the providers' official directories. Connect to `https://app.qawolf.com/api/mcp` with your QA Wolf API key. Installing the plugin does not authenticate your connection. OAuth sign-in is not yet supported.
 
 See the [platform setup guide](plugins/qawolf/skills/qawolf/references/platforms.md) for native plugins, separately configured MCP clients, and guidance-only limitations. Do not assume that an instruction file exposes QA Wolf tools.
 
