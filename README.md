@@ -1,24 +1,18 @@
 # QA Wolf agent plugins
 
-QA Wolf plugins for Claude Code and Codex. Request test coverage, run flows, inspect results, and use a cloud browser through the QA Wolf MCP endpoint.
+Use QA Wolf from coding agents to request test coverage, run flows, inspect results, and drive a cloud browser. One shared skill supplies the workflow; client adapters and MCP settings supply the tools.
 
 ## Status
 
-Preview release. This repository supports direct marketplace installation; it is not an approved listing in the providers' official directories. OAuth support and directory-review metadata are still pending.
+This is an API-key preview, not an approved listing in the providers' official directories. At the 0.1.2 publication check on 2026-09-07, production `/api/mcp` still returned HTTP 404. The assets are published for preview; production use requires the MCP backend deployment. The production MCP endpoint is `https://app.qawolf.com/api/mcp`; installing client files does not deploy that server or authenticate the connection. OAuth support remains pending.
 
-The plugin points to `https://app.qawolf.com/api/mcp` and requires a compatible server deployment. It currently authenticates with `QAWOLF_API_KEY`, set in the client environment. Do not commit your key or share it in a public issue.
+See the [platform setup guide](plugins/qawolf/skills/qawolf/references/platforms.md) for native plugins, separately configured MCP clients, and guidance-only limitations. Do not assume that an instruction file exposes QA Wolf tools.
 
 ## Install
 
-Get a team API key from the QA Wolf app and set it in the terminal that launches your client:
-
-```bash
-export QAWOLF_API_KEY='your-team-api-key'
-```
+Get a team API key from QA Wolf. Configure it outside chat through the client's secure credential input or launch environment, normally as `QAWOLF_API_KEY`. Do not put the key in shell history, source control, a prompt, or a public issue. Desktop clients need the credential in the process that actually starts their MCP connection.
 
 ### Claude Code
-
-Start Claude Code, then run:
 
 ```text
 /plugin marketplace add qawolf/agent-plugins
@@ -32,28 +26,66 @@ codex plugin marketplace add qawolf/agent-plugins
 codex plugin add qawolf@qawolf
 ```
 
-Start a new session after installation. Ask your agent to call `whoami` to verify the connection and account.
+### GitHub Copilot CLI
 
-See the [plugin guide](plugins/qawolf/README.md) for workflows, authentication, and troubleshooting. Browser runners bill while they exist; terminate them when the work ends.
+```bash
+copilot plugin marketplace add qawolf/agent-plugins
+copilot plugin install qawolf@qawolf
+```
 
-## Validate a checkout
+### Gemini CLI
+
+```bash
+gemini extensions install https://github.com/qawolf/agent-plugins
+```
+
+Enter the API key only in Gemini's sensitive extension-setting prompt.
+
+### Pi
+
+```bash
+pi install git:github.com/qawolf/agent-plugins
+```
+
+This installs the skill, not an MCP bridge. Pi users need a separately reviewed MCP extension configured for QA Wolf.
+
+### Other Agent Skills clients
+
+```bash
+npx skills add qawolf/agent-plugins --skill qawolf
+```
+
+Review the third-party installer and select your client. MCP setup is separate unless the client reads a bundled MCP adapter. Amp reads the skill's `mcp.json`; other clients should follow the [platform guide](plugins/qawolf/skills/qawolf/references/platforms.md). That guide also covers native installs for Grok, Devin, Qoder, and Hermes, plus manual MCP setup and clients without a verified QA Wolf tool connection.
+
+Restart the client or start a fresh session, then call `whoami` and confirm the account and workspace. For onboarding, require both `agent_send` and `agent_get`. Share the returned session URL; acceptance does not mean the flow is finished. Browser runners bill while they exist, so terminate them when work ends.
+
+## Distribution layout
+
+- `plugins/qawolf/` is the canonical client bundle, including the complete shared skill and setup references.
+- `skills/qawolf/` is generated from that skill for clients that discover repository-root skills. It is not edited independently.
+- Root manifests and catalogs are client entrypoints, not QA Wolf server code.
+- `AGENTS.md` supplies a short fallback for instruction-aware clients. Append its QA Wolf section rather than replacing a project's existing instructions.
+
+The layout uses the thin-adapter pattern demonstrated by [Ponytail](https://github.com/DietrichGebert/ponytail), without its always-on hooks or persona behavior.
+
+## Validation
 
 ```bash
 claude plugin validate ./ --strict
 claude plugin validate ./plugins/qawolf --strict
 ```
 
-Codex can load this checkout with `codex plugin marketplace add ./`. Inspect it with `codex plugin list --marketplace qawolf --available --json`.
+Codex can install a checkout with `codex plugin marketplace add ./`, then `codex plugin add qawolf@qawolf`. File and manifest validation is not proof of an authenticated connection in every supported client; verify `whoami` in the client you use.
 
-## Release automation
+## Releases
 
-Automatic publishing starts after the backend release integration is deployed and its GitHub app has access to this repository.
+Changes belong in the platform's dedicated agent-plugins package, not in this generated distribution. The independent publishing workflow checks a successful production deployment job and the exact healthy Apex commit before copying approved client files.
 
-The QA Wolf backend release pipeline manages `plugins/qawolf` and the QA Wolf entry in each marketplace. Plugin changes belong in the platform source, not in this repository's generated bundle.
+Changed bundle or root-adapter content receives one new patch version across versioned client entrypoints. A higher author-declared version takes precedence. Unchanged releases do not create commits. Publishing preserves unrelated repository files and marketplace entries, including this README.
 
-After a successful backend release, the sync copies the approved plugin files from the released commit. It increments the public patch version when content changes and uses the same version in both manifests and the Claude marketplace. Unchanged releases do not create commits. The sync preserves this README and unrelated repository files.
+Automation requires the QA Wolf Ops GitHub App installation to include this repository. Manual previews may be published before the corresponding backend release; they do not establish deployment or authentication success.
 
-Repository updates do not publish a new version in OpenAI's official directory. That directory requires a separate scan, review, and publication step.
+Updating this repository does not publish to npm, ClawHub, or an official provider directory. Those require separate authorization and publication steps.
 
 ## Support and policies
 
@@ -62,4 +94,4 @@ Repository updates do not publish a new version in OpenAI's official directory. 
 - [Privacy policy](https://www.qawolf.com/legal/privacy-policy)
 - [Terms](https://www.qawolf.com/legal/terms)
 
-Do not post API keys, passwords, or customer test data in public issues.
+Review requested actions before approving them. Tool arguments and results can include test data, environment values, and browser screenshots. Never include credentials or customer test data in public reports.

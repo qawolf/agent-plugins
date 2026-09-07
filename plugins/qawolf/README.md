@@ -1,18 +1,16 @@
 # QA Wolf plugin
 
-Use QA Wolf from Claude Code or Codex to request test coverage, run flows, inspect results, and drive a cloud browser.
+Use QA Wolf from your coding agent to request test coverage, run flows, inspect results, and drive a cloud browser. See [platform setup](skills/qawolf/references/platforms.md) for native plugins, portable skills, MCP configuration, and guidance-only limitations.
 
 This is a preview distributed through the [QA Wolf plugin repository](https://github.com/qawolf/agent-plugins). It is not yet listed in the providers' official directories. The plugin uses a team API key while OAuth support is pending.
 
 ## Connect to QA Wolf
 
-Both clients connect to `https://app.qawolf.com/api/mcp`. The endpoint must be available in the deployed QA Wolf backend. Installing the plugin does not deploy the server.
+QA Wolf clients connect to `https://app.qawolf.com/api/mcp`. The endpoint must be available in the deployed QA Wolf backend. Installing the plugin does not deploy the server.
 
 Get a team API key from the QA Wolf app. Set `QAWOLF_API_KEY` in the environment that launches your client. Do not commit the key or paste it into a chat, issue, or screenshot.
 
-```bash
-export QAWOLF_API_KEY='your-team-api-key'
-```
+Use a secure client credential prompt or set the key in the launch environment without putting its value in shell history. Client-specific configuration is documented in [platform setup](skills/qawolf/references/platforms.md).
 
 Team API keys support browser tools. Organization and user credentials do not currently have access to those tools.
 
@@ -37,6 +35,10 @@ codex plugin add qawolf@qawolf
 ```
 
 Start a new Codex session. Ask Codex to call `whoami` to verify the connection and account.
+
+## Other coding agents
+
+The public repository also exposes the complete skill at `skills/qawolf/` and a Pi package entrypoint. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
 
 ## Try it
 
@@ -71,4 +73,4 @@ The plugin sends tool arguments to QA Wolf and returns the requested API results
 
 Claude Code reads `.claude-plugin/plugin.json`; Codex reads `.codex-plugin/plugin.json`. Both load `skills/qawolf/SKILL.md`.
 
-The manifests point to separate MCP configs. Claude uses an authorization header with `${QAWOLF_API_KEY}` in `mcp/claude.json`. Codex uses `bearer_token_env_var` in `mcp/codex.json`. There is no shared root `.mcp.json` because the clients use different credential formats.
+The manifests point to separate MCP configs. Claude uses an authorization header with `${QAWOLF_API_KEY}` in `mcp/claude.json`. Codex uses `bearer_token_env_var` in `mcp/codex.json`. There is no shared plugin-root `.mcp.json` because clients use different credential formats. Amp alone reads the skill's sibling `mcp.json`; other clients use their native plugin manifest or separately configured MCP connection.

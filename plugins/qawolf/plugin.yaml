@@ -1,0 +1,7 @@
+name: qawolf
+version: 0.1.2
+description: QA Wolf test workflows. Configure the MCP server separately.
+requires_env:
+  - name: QAWOLF_API_KEY
+    description: Team API key for the QA Wolf MCP server
+    secret: true

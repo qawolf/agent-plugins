@@ -1,0 +1,7 @@
+{
+  "name": "qawolf",
+  "version": "0.1.2",
+  "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser.",
+  "skills": "./skills/",
+  "mcpServers": "./mcp/copilot.json"
+}
