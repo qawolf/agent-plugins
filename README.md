@@ -35,6 +35,14 @@ copilot plugin marketplace add qawolf/agent-plugins
 copilot plugin install qawolf@qawolf
 ```
 
+### Google Antigravity CLI
+
+```bash
+agy plugin install https://github.com/qawolf/agent-plugins
+```
+
+Then run `/mcp auth qawolf` to sign in.
+
 ### Gemini CLI
 
 ```bash
