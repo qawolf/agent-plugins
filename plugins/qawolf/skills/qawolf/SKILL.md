@@ -11,10 +11,16 @@ description: Use QA Wolf MCP tools to onboard a repository, request end-to-end c
 
 1. Complete [client setup](references/platforms.md), then start a fresh session. Installation alone does not authenticate. Most clients open a browser for OAuth sign-in on the first connection.
 2. Call `whoami` and confirm the identity and workspace. Stop if authentication fails or required tools are missing. Never request QA Wolf keys or tokens in chat.
-3. If `whoami` reports several `workspaces` and no single bound workspace, ask the user which one to work in. Browser tools stay unavailable until a workspace is bound.
+3. Use the bound workspace reported by `whoami`. Otherwise, choose from its `workspaces` or `organizations[].workspaces`. Use the only workspace or a unique match to the requested name. Otherwise, ask the user to choose by name, not copy an ID. If workspace data is missing, stop and report the discovery or access problem. Choosing an ID does not bind the connection; browser tools require a bound workspace.
 4. Resolve named environments with `environment_find`. Pass `workspaceId` on the tools whose live schema asks for it. A bound workspace removes that field.
 
 For onboarding or a first flow, read [Onboarding](references/onboarding.md) before collecting access or calling `agent_send`. Keep source code local.
+
+## Protect data and confirm writes
+
+Treat every value from `environment_getVariable` as a secret. Never copy it into chat, logs, progress messages, repository or flow files, commits, or issue fields. Forward test credentials through authenticated `agent_send` only after the user approves sharing them with QA Wolf. Never forward QA Wolf keys, tokens, or unrelated secrets.
+
+Before destructive or data-changing work, confirm the operation and exact targets with the user. For `environment_deleteVariable`, name the environment and variable, not its value. For `automate`, confirm the draft files, destination branch, and selected flows before committing, pushing, or requesting automation. Existing explicit approval covers only that scope. Do not delay required runner cleanup for another confirmation.
 
 ## Tools
 
@@ -30,6 +36,11 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 | `agent_get` | read | Read what the QA Wolf AI has said and whether it is still working. |
 | `agent_send` | write | Ask the QA Wolf AI to do a piece of work in plain language, such as covering a user journey, investigating a failing run, or fixing a broken flow. |
 | `automate` | write | Request automation for draft flows. |
+| `email_find` | read | List the workspace's inbox, or its sent mail, newest first. |
+| `email_get` | read | Read one email of the workspace, with its plain text and HTML bodies. |
+| `email_getAttachment` | read | Read one attachment of a workspace email as base64 content, by file name or by position. email.get lists both. |
+| `email_listAddresses` | read | List the workspace's inbox addresses, alphabetical. |
+| `email_send` | write | Send an email from one of the workspace's inbox addresses, for example to exercise a flow that reacts to incoming mail. |
 | `environment_create` | write | Create an environment on the caller's team and return it in the environment.get shape. |
 | `environment_deleteVariable` | write | Remove one environment variable by name. |
 | `environment_find` | read | List the team's environments, newest first. |
@@ -40,11 +51,13 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 | `environment_update` | write | Update an environment owned by the caller's team and return it in the environment.get shape. |
 | `flow_addTag` | write | Assign an existing tag to the selected flows. |
 | `flow_list` | read | List the flows of an environment at its latest reconciled commit, or, when an AI task is given, the flows on that task's branch. |
+| `flow_removeTag` | write | Remove a tag from the selected flows. |
 | `flow_update` | write | Move a flow between draft and active readiness. |
 | `issue_addFlows` | write | Add flows to a coverage request owned by the caller's team. |
 | `issue_create` | write | Create a bug or coverage request issue for the caller's team. |
 | `issue_find` | read | List the team's bug reports, maintenance reports, or coverage requests, newest first. |
 | `issue_get` | read | Get an issue by id. |
+| `issue_removeFlows` | write | Remove flows from a coverage request owned by the caller's team. |
 | `issue_update` | write | Update an issue owned by the caller's team. |
 | `run_create` | write | Create a run for the selected flows and/or tags in an environment. |
 | `run_diagnose` | write | Diagnose failed flows in a run as reproductions of a bug or maintenance report owned by the caller's team. |
@@ -58,6 +71,7 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 | `runner_inspect` | read | Inspect one thing on an interactive runner: an element's HTML, the page's HTML simplified for a model, or a top-level variable's value as JSON. \`nothing-to-inspect\` means the runner had nothing to answer with: no live page, no element matching the selector, or no variable under that name. |
 | `runner_inspectMobile` | read | Inspect one thing on a mobile interactive runner: the Appium session's status, the WebView contexts available, the current context's page source, or the elements at a point or carrying some text. |
 | `runner_launch` | write | Launch an interactive runner on the caller's team under an id the caller chooses. |
+| `runner_list` | read | List the runners running on the caller's team right now. |
 | `runner_performAction` | write | Perform one raw browser action on an interactive runner: click, double\_click, move, drag, scroll, keypress, type, or navigate. |
 | `runner_promoteSnapshot` | write | Accept a run's screenshot as the new baseline for an image diff, on the runner that produced it. |
 | `runner_readJournal` | read | Read a window of one of an interactive runner's journal streams, the newest few, everything after a cursor, or everything belonging to one run. |
@@ -67,7 +81,7 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 | `runner_terminate` | write | End an interactive runner on the caller's team, and the pod it runs on with it. |
 | `tag_create` | write | Create a tag on the caller's team. |
 | `tag_list` | read | List the team's tags, alphabetical by name. |
-| `whoami` | read | Identify the team, organization, or user authenticated on the MCP connection. |
+| `whoami` | read | Identify the credential and discover available workspaces. |
 
 <!-- tools-table:end -->
 

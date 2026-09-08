@@ -180,11 +180,11 @@ Public `skills/qawolf/` comes from `plugins/qawolf/skills/qawolf/`. Copy the who
 
 Install the skill at the location below, then configure MCP. Clients supported by the [Agent Skills CLI](https://github.com/vercel-labs/skills) can use its target picker:
 
+Review the installer first and check its destination, especially Cline's `.cline/skills/qawolf`. CodeWhale and Swival also accept `.agents/skills/qawolf`.
+
 ```bash
 npx skills add qawolf/agent-plugins --skill qawolf
 ```
-
-Review the installer first and check its destination, especially Cline's `.cline/skills/qawolf`. CodeWhale and Swival also accept `.agents/skills/qawolf`.
 
 For a manual copy, set `QAWOLF_PLUGIN_ROOT` to a reviewed checkout's `plugins/qawolf` directory. Run from the application project and choose a destination below. This refuses to replace an existing skill:
 

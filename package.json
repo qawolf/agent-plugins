@@ -1,6 +1,6 @@
 {
   "name": "qawolf-agent-plugins",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "description": "QA Wolf instructions for coding agents; configure an MCP connection separately in clients without native MCP plugins.",
   "keywords": [
