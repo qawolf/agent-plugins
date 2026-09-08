@@ -9,9 +9,10 @@ description: Use QA Wolf MCP tools to onboard a repository, request end-to-end c
 
 ## Start here
 
-1. Complete [client setup](references/platforms.md) outside chat, then start a fresh session. Installation alone does not authenticate. The preview uses API keys, not OAuth.
+1. Complete [client setup](references/platforms.md), then start a fresh session. Installation alone does not authenticate. Most clients open a browser for OAuth sign-in on the first connection.
 2. Call `whoami` and confirm the identity and workspace. Stop if authentication fails or required tools are missing. Never request QA Wolf keys or tokens in chat.
-3. Resolve named environments with `environment_find`. Organization and user credentials require `workspaceId` where the tool requests it.
+3. If `whoami` reports several `workspaces` and no single bound workspace, ask the user which one to work in. Browser tools stay unavailable until a workspace is bound.
+4. Resolve named environments with `environment_find`. Pass `workspaceId` on the tools whose live schema asks for it. A bound workspace removes that field.
 
 For onboarding or a first flow, read [Onboarding](references/onboarding.md) before collecting access or calling `agent_send`. Keep source code local.
 
@@ -92,7 +93,7 @@ Both `run_create` and `run_find` require `environmentId`. After a timeout, check
 
 ## Drive a browser
 
-Browser tools require a team API key. Launch with a unique `id` and `runnerName: "playwright"`. Use `runner_performAction` to start the desktop, then inspect `runner_takeScreenshot` before further actions. For `runner_runFlow`, send `env` or `environmentId`, not both.
+Browser tools require a bound workspace, from OAuth sign-in or a team API key. Launch with a unique `id` and `runnerName: "playwright"`. Use `runner_performAction` to start the desktop, then inspect `runner_takeScreenshot` before further actions. For `runner_runFlow`, send `env` or `environmentId`, not both.
 
 Runners bill until terminated. Call `runner_terminate` when done, before ending your turn.
 

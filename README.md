@@ -4,13 +4,15 @@ Use QA Wolf from coding agents to request test coverage, run flows, inspect resu
 
 ## Status
 
-This is an API-key preview, not an approved listing in the providers' official directories. Connect to `https://app.qawolf.com/api/mcp` with your QA Wolf API key. Installing the plugin does not authenticate your connection. OAuth sign-in is not yet supported.
+This is a preview, not an approved listing in the providers' official directories. Clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth. Installing the plugin does not authenticate your connection; the client opens a browser on the first connection.
 
 See the [platform setup guide](plugins/qawolf/skills/qawolf/references/platforms.md) for native plugins, separately configured MCP clients, and guidance-only limitations. Do not assume that an instruction file exposes QA Wolf tools.
 
 ## Install
 
-Get a team API key from QA Wolf. Configure it outside chat through the client's secure credential input or launch environment, normally as `QAWOLF_API_KEY`. Do not put the key in shell history, source control, a prompt, or a public issue. Desktop clients need the credential in the process that actually starts their MCP connection.
+Install the plugin for your client, start a fresh session, and approve the browser sign-in. No API key is needed.
+
+Where a browser sign-in cannot happen, such as CI or a container, use the API key fallback in the [platform setup guide](plugins/qawolf/skills/qawolf/references/platforms.md). Configure a key outside chat and keep it out of shell history, source control, prompts, and public issues.
 
 ### Claude Code
 
@@ -39,7 +41,7 @@ copilot plugin install qawolf@qawolf
 gemini extensions install https://github.com/qawolf/agent-plugins
 ```
 
-Enter the API key only in Gemini's sensitive extension-setting prompt.
+Then run `/mcp auth qawolf` to sign in.
 
 ### Pi
 

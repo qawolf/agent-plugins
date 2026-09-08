@@ -1,21 +1,10 @@
 {
   "name": "qawolf",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser.",
-  "settings": [
-    {
-      "name": "QA Wolf API key",
-      "description": "Team API key used to authenticate the QA Wolf MCP connection.",
-      "envVar": "QAWOLF_API_KEY",
-      "sensitive": true
-    }
-  ],
   "mcpServers": {
     "qawolf": {
-      "httpUrl": "https://app.qawolf.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer ${QAWOLF_API_KEY}"
-      }
+      "httpUrl": "https://app.qawolf.com/api/mcp"
     }
   }
 }

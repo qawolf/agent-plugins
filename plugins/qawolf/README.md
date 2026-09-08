@@ -2,39 +2,35 @@
 
 Use QA Wolf from your coding agent to request test coverage, run flows, inspect results, and drive a cloud browser. See [platform setup](skills/qawolf/references/platforms.md) for native plugins, portable skills, MCP configuration, and guidance-only limitations.
 
-This is a preview distributed through the [QA Wolf plugin repository](https://github.com/qawolf/agent-plugins). It is not yet listed in the providers' official directories. The plugin uses a team API key while OAuth support is pending.
+This is a preview distributed through the [QA Wolf plugin repository](https://github.com/qawolf/agent-plugins). It is not yet listed in the providers' official directories. The plugin signs in with OAuth.
 
 ## Connect to QA Wolf
 
-QA Wolf clients connect to `https://app.qawolf.com/api/mcp`. Installing the plugin does not authenticate your connection. Check the [preview status](https://github.com/qawolf/agent-plugins#status) before use.
+QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth. Installing the plugin does not authenticate your connection. Your client opens a browser on the first connection and signs you in through `https://signin.qawolf.com`. Check the [preview status](https://github.com/qawolf/agent-plugins#status) before use.
 
-Get a team API key from the QA Wolf app. Set `QAWOLF_API_KEY` in the environment that launches your client. Do not commit the key or paste it into a chat, issue, or screenshot.
+No API key is needed. Do not add an `Authorization` header to the plugin's MCP entry; in Claude Code and Codex a configured header switches OAuth off and the connection fails with HTTP 401.
 
-Use a secure client credential prompt or set the key in the launch environment without putting its value in shell history. Client-specific configuration is documented in [platform setup](skills/qawolf/references/platforms.md).
+Where a browser sign-in cannot happen, such as CI or a container, use the API key fallback described in [platform setup](skills/qawolf/references/platforms.md). Keep any key out of shell history, source control, chats, issues, and screenshots.
 
-Team API keys support browser tools. Organization and user credentials do not currently have access to those tools.
+Browser tools need a bound workspace. OAuth binds one when your organization has a single QA Wolf workspace; a team API key is always bound to its team.
 
 ## Install in Claude Code
-
-Start Claude Code from the terminal where you set `QAWOLF_API_KEY`. Then run:
 
 ```text
 /plugin marketplace add qawolf/agent-plugins
 /plugin install qawolf@qawolf
 ```
 
-Start a new session after installation. Ask Claude to call `whoami` to verify the connection and account.
+Start a new session after installation and approve the browser sign-in. To sign in by hand, run `claude mcp login plugin:qawolf:qawolf`; the plugin-scoped name is required, and the bare `qawolf` does not resolve. Then ask Claude to call `whoami` to verify the connection and account.
 
 ## Install in Codex
-
-From the terminal where you set `QAWOLF_API_KEY`, run:
 
 ```bash
 codex plugin marketplace add qawolf/agent-plugins
 codex plugin add qawolf@qawolf
 ```
 
-Start a new Codex session. Ask Codex to call `whoami` to verify the connection and account.
+Start a new Codex session and approve the browser sign-in, or run `codex mcp login qawolf`. Then ask Codex to call `whoami` to verify the connection and account.
 
 ## Other coding agents
 
@@ -53,11 +49,12 @@ A cloud browser bills while its runner exists. The skill instructs the agent to 
 ## Troubleshooting
 
 - Connection failure or HTTP 404: check the configured URL and [preview status](https://github.com/qawolf/agent-plugins#status). Reinstalling the plugin cannot fix an unavailable service.
-- Missing or rejected credential: check `QAWOLF_API_KEY` in the client process and restart the client after changing it.
-- Browser-tool authorization error: use a team API key with access to the target workspace.
+- Sign-in never starts and the connection reports HTTP 401: an `Authorization` header is configured somewhere. Claude Code and Codex skip OAuth when one is set. Remove it from your own `qawolf` MCP entry and reconnect.
+- Sign-in fails or the session expires: run `claude mcp login plugin:qawolf:qawolf`, or `codex mcp login qawolf`, and complete the browser flow again.
+- Browser-tool authorization error: the connection has no bound workspace. Call `whoami`. If it lists several workspaces, pass `workspaceId` where tools accept it, or use a team API key for the target workspace.
 - Missing agent tools: coverage requests require both `agent_send` and `agent_get`. Contact QA Wolf support if either is unavailable.
 
-Use the [platform guide](skills/qawolf/references/platforms.md) for client-specific connection settings. Never send a QA Wolf API key to an untrusted endpoint.
+Use the [platform guide](skills/qawolf/references/platforms.md) for client-specific connection settings. Never send a QA Wolf API key or OAuth token to an untrusted endpoint.
 
 Report plugin problems through [GitHub issues](https://github.com/qawolf/agent-plugins/issues). Do not include API keys, passwords, or customer test data in public reports.
 
