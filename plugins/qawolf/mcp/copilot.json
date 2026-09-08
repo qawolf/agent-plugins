@@ -3,10 +3,7 @@
     "qawolf": {
       "type": "http",
       "url": "https://app.qawolf.com/api/mcp",
-      "tools": ["*"],
-      "headers": {
-        "Authorization": "Bearer ${QAWOLF_API_KEY}"
-      }
+      "tools": ["*"]
     }
   }
 }

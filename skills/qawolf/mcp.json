@@ -1,8 +1,5 @@
 {
   "qawolf": {
-    "url": "https://app.qawolf.com/api/mcp",
-    "headers": {
-      "Authorization": "Bearer ${QAWOLF_API_KEY}"
-    }
+    "url": "https://app.qawolf.com/api/mcp"
   }
 }

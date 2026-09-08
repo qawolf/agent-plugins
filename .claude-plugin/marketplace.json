@@ -10,7 +10,7 @@
       "name": "qawolf",
       "source": "./plugins/qawolf",
       "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser from your editor.",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "category": "testing",
       "keywords": [
         "qa",

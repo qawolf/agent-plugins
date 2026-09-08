@@ -4,9 +4,9 @@ Choose one useful user journey and give the user a link to QA Wolf's work. Login
 
 ## Confirm QA Wolf access
 
-Complete the skill's setup checks: `whoami`, the intended workspace, and available `agent_send` and `agent_get` tools. Stop if any check fails. Follow [platform setup](platforms.md) for API-key configuration outside chat; OAuth is not available.
+Complete the skill's setup checks: `whoami`, the intended workspace, and available `agent_send` and `agent_get` tools. Stop if any check fails. Follow [platform setup](platforms.md) to configure the client and sign in.
 
-Supply `workspaceId` for organization or user credentials. Resolve IDs through available tools rather than guessing. QA Wolf authentication does not sign into the test application.
+Supply `workspaceId` when a tool's schema asks for it. A workspace bound at sign-in removes that field. Resolve IDs through available tools instead of guessing. QA Wolf authentication does not sign into the test application.
 
 ## Agree on the story and target
 
