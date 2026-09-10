@@ -6,7 +6,7 @@ This is a preview distributed through the [QA Wolf plugin repository](https://gi
 
 ## Connect to QA Wolf
 
-QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth. Installing the plugin does not authenticate your connection. Your client opens a browser on the first connection and signs you in through `https://signin.qawolf.com`. Check the [preview status](https://github.com/qawolf/agent-plugins#status) before use.
+QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth. Installing the plugin does not authenticate your connection. Use your client's authentication controls to sign in through `https://signin.qawolf.com` in your browser. Check the [preview status](https://github.com/qawolf/agent-plugins#status) before use.
 
 No API key is needed. Do not add an `Authorization` header to the plugin's MCP entry; in Claude Code and Codex a configured header switches OAuth off and the connection fails with HTTP 401.
 
@@ -21,7 +21,11 @@ Browser tools need a bound workspace. OAuth binds one when your organization has
 /plugin install qawolf@qawolf
 ```
 
-Start a new session after installation and approve the browser sign-in. To sign in by hand, run `claude mcp login plugin:qawolf:qawolf`; the plugin-scoped name is required, and the bare `qawolf` does not resolve. Then ask Claude to call `whoami` to verify the connection and account.
+Start a new session after installation. Open `/mcp`, select the QA Wolf plugin server, and choose Authenticate if sign-in is needed. Follow the browser sign-in, then return to Claude and ask it to call `whoami` to confirm your account and workspace.
+
+Claude Code handles the callback and token storage. If the browser does not open, use the link in its authentication UI. If the redirect fails, use its dedicated authentication prompt. Do not paste callback URLs, authorization codes, or tokens into chat.
+
+To sign in from a terminal instead, run `claude mcp login plugin:qawolf:qawolf`; the plugin-scoped name is required, and the bare `qawolf` does not resolve.
 
 ## Install in Codex
 
@@ -32,17 +36,32 @@ codex plugin add qawolf@qawolf
 
 Start a new Codex session and approve the browser sign-in, or run `codex mcp login qawolf`. Then ask Codex to call `whoami` to verify the connection and account.
 
+## Install in Google Antigravity CLI
+
+```bash
+agy plugin install https://github.com/qawolf/agent-plugins
+```
+
+Then run `/mcp auth qawolf` to sign in. Ask the agent to call `whoami` to confirm your account and workspace.
+
 ## Other coding agents
 
-The public repository also exposes the complete skill at `skills/qawolf/` and a Pi package entrypoint. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
+The public repository also exposes the three sibling skills under `skills/` and a Pi package entrypoint. Install `qawolf`, `qawolf-flow-outline`, and `qawolf-onboarding` together. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
+
+## Skills
+
+- **Flow Outline** (`qawolf-flow-outline`) handles every new-flow request. Your coding agent explores through runner computer use, finds context independently, and uses the ask-user tool for gaps. It presents Arrange, Act, Assert outlines for approval, sends approved outlines through `agent_send`, and monitors creation.
+- **Onboarding** (`qawolf-onboarding`) chooses the best first flow and invokes Flow Outline. A request that already names the new flow goes directly to Flow Outline.
+- **QA Wolf** (`qawolf`) supplies shared connection and safety guidance, plus existing-test operations.
+
+Exploration requires a bound workspace. Your new-flow or onboarding request covers billed browser use and routine staging exploration without a separate permission prompt. Your coding agent displays the full AAA before asking for approval, then shares the session URL before monitoring. It continues silently when status is unchanged and verifies publication and the approved draft or active readiness before reporting completion.
 
 ## Try it
 
-- "Ask QA Wolf to cover the checkout journey in this repository."
+- "Onboard this app to QA Wolf and find the best first flow."
+- "Create a QA Wolf flow for checkout."
 - "Run the smoke-tagged QA Wolf flows and summarize what failed."
 - "Open a QA Wolf browser and reproduce the login bug."
-
-Coverage requests use `agent_send` and `agent_get`. The skill checks that both tools are available before using them.
 
 A cloud browser bills while its runner exists. The skill instructs the agent to terminate the runner when the work ends.
 

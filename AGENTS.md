@@ -2,10 +2,12 @@
 
 Apply this guidance when the user asks QA Wolf to create, run, or investigate tests. It does not replace the application's own development instructions.
 
-Load the complete `qawolf` skill and its references before starting. This distribution contains it at `skills/qawolf/SKILL.md`; a project may instead install it at `.agents/skills/qawolf/SKILL.md` or the client's native skill location.
+Load `skills/qawolf/SKILL.md` for shared connection and safety rules. Install the sibling `qawolf-flow-outline` and `qawolf-onboarding` skills too. A project may keep these under `.agents/skills/` or its client's native skill location.
 
 A rule or skill file does not expose MCP tools. Configure the client's QA Wolf MCP connection separately unless its native plugin does that. Verify the connection with `whoami`; stop if the connection or required tools are unavailable. Most clients sign in with OAuth through a browser on the first connection.
 
-For a first flow, read the onboarding reference. Keep source code local. Confirm the user story, target URL, workspace, and approved test access before sending behavioral instructions through `agent_send`. Share the returned URL and monitor the same session with `agent_get`. Do not claim acceptance means the flow is complete.
+For every new flow or coverage request, invoke `qawolf-flow-outline` or read `skills/qawolf-flow-outline/SKILL.md`. It explores through runner computer use, discovers context independently, asks about gaps with the client's ask-user tool, presents AAA outlines for approval, sends the approved outline through `agent_send`, and monitors creation. Keep source code local and share the returned session URL immediately.
+
+For onboarding or choosing a first flow, invoke `qawolf-onboarding` or read `skills/qawolf-onboarding/SKILL.md`. It selects the best candidate and invokes Flow Outline. If the user already named the flow, use Flow Outline directly.
 
 Resolve the intended environment before creating or finding runs. Do not blindly retry a timed-out write. Browser runners bill while they exist; terminate them when work ends. Never expose credentials in messages, repository files, or public issues.

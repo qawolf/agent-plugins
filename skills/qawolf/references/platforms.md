@@ -40,7 +40,13 @@ codex plugin marketplace add qawolf/agent-plugins
 codex plugin add qawolf@qawolf
 ```
 
-Both plugins install the skill and MCP config, and both sign in with OAuth. Start a fresh session, then approve the browser sign-in when the client asks. Codex desktop uses the same installation; restart it.
+Both plugins install the skill and MCP config, and both sign in with OAuth. Start a fresh session after installation.
+
+When Claude Code needs sign-in, direct the user to its native `/mcp` controls rather than calling the conversational `authenticate` tool: "First, connect your account. Open `/mcp`, select QA Wolf, and choose Authenticate. Follow the browser sign-in, then return here."
+
+In Codex, approve the browser sign-in when prompted. Codex desktop uses the same installation; restart it.
+
+Let the client handle the browser callback and token storage. If the browser does not open, use the link in its authentication UI. If the redirect fails, paste the callback URL only into the client's dedicated authentication prompt, never ordinary chat. Confirm the connection with `whoami` before continuing onboarding.
 
 To sign in by hand, Claude Code needs the plugin-scoped server name, `claude mcp login plugin:qawolf:qawolf`. The bare name does not resolve for a plugin server. Codex uses `codex mcp login qawolf`. Both have a matching `logout`.
 
@@ -72,6 +78,16 @@ Review the extension, then run `/mcp auth qawolf` to sign in. Use the explicit c
 Git installation uses the public root manifest and skills. Local installs can use `plugins/qawolf`. The private platform repository is not installable.
 
 Sources: [extensions and settings](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/reference.md), [release-root requirements](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/releasing.md).
+
+## Google Antigravity CLI
+
+```bash
+agy plugin install https://github.com/qawolf/agent-plugins
+```
+
+Then run `/mcp auth qawolf` to sign in. Call `whoami` to confirm your account and workspace before using QA Wolf tools. Installation alone does not authenticate.
+
+Sources: [skills](https://antigravity.google/docs/skills), [MCP](https://antigravity.google/docs/mcp).
 
 ## Grok Build
 
@@ -120,7 +136,7 @@ hermes plugins install qawolf/agent-plugins/plugins/qawolf --no-enable
 hermes plugins enable qawolf
 ```
 
-Review the adapter before enabling it. It registers the skill, not MCP. Merge the server into the active profile's `~/.hermes/config.yaml`:
+Review the adapter before enabling it. It registers all three QA Wolf skills, not MCP. Merge the server into the active profile's `~/.hermes/config.yaml`:
 
 ```yaml
 mcp_servers:
@@ -137,13 +153,13 @@ mcp_servers:
       Authorization: Bearer ${QAWOLF_API_KEY}
 ```
 
-Start a new session and call `skill_view("qawolf:qawolf")`; plugin skills are absent from the general skill index. Verify MCP tools separately.
+Start a new session and call `skill_view("qawolf:qawolf")` for shared guidance, `skill_view("qawolf:qawolf-flow-outline")` for a new flow, or `skill_view("qawolf:qawolf-onboarding")` to choose a first flow. Plugin skills are absent from the general skill index. Verify MCP tools separately.
 
 Sources: [native plugins and skill registration](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/developer-guide/plugins/index.md), [MCP secrets](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/reference/mcp-config-reference.md).
 
 ## OpenCode
 
-No executable plugin is needed. Copy the complete skill to project `.agents/skills/qawolf` or user `~/.config/opencode/skills/qawolf`. Merge into `opencode.json` or user `~/.config/opencode/opencode.json`:
+No executable plugin is needed. Copy all three sibling skill directories to project `.agents/skills/` or user `~/.config/opencode/skills/`. Merge into `opencode.json` or user `~/.config/opencode/opencode.json`:
 
 ```json
 {
@@ -166,7 +182,7 @@ Sources: [skills](https://opencode.ai/docs/skills/), [remote MCP](https://openco
 pi install git:github.com/qawolf/agent-plugins
 ```
 
-Restart or `/reload`, then use `/skill:qawolf`. This installs instructions only, with no extension or hooks.
+Restart or `/reload`, then use `/skill:qawolf-flow-outline` for a new flow, `/skill:qawolf-onboarding` to choose a first flow, or `/skill:qawolf` for other test operations. This installs instructions only, with no extension or hooks.
 
 Pi has [no built-in MCP support](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent#philosophy). Install a reviewed MCP extension, configure the endpoint in its format, and verify QA Wolf tools before use. Prefer an extension that handles MCP OAuth. If none is available, supply a team API key as a bearer credential.
 
@@ -174,38 +190,42 @@ Sources: [Pi packages](https://github.com/badlogic/pi-mono/blob/main/packages/co
 
 ## Portable skill files
 
-Public `skills/qawolf/` comes from `plugins/qawolf/skills/qawolf/`. Copy the whole directory, including `mcp.json` and references. Review existing files before updating; never replace an application's instructions or configuration wholesale.
+Public `skills/` contains the same three QA Wolf skill directories as `plugins/qawolf/skills/`: `qawolf`, `qawolf-flow-outline`, and `qawolf-onboarding`. Install them together as siblings, including the shared skill's `mcp.json` and references. Relative links connect the skills. Review existing files before updating; never replace an application's instructions or configuration wholesale.
 
 ## Portable clients with MCP
 
-Install the skill at the location below, then configure MCP. Clients supported by the [Agent Skills CLI](https://github.com/vercel-labs/skills) can use its target picker:
+Install all three skills together, then configure MCP. The table shows the shared `qawolf` location; place `qawolf-flow-outline` and `qawolf-onboarding` beside it. Clients supported by the [Agent Skills CLI](https://github.com/vercel-labs/skills) can select all three QA Wolf skills in its picker:
 
 Review the installer first and check its destination, especially Cline's `.cline/skills/qawolf`. CodeWhale and Swival also accept `.agents/skills/qawolf`.
 
 ```bash
-npx skills add qawolf/agent-plugins --skill qawolf
+npx skills add qawolf/agent-plugins
 ```
 
-For a manual copy, set `QAWOLF_PLUGIN_ROOT` to a reviewed checkout's `plugins/qawolf` directory. Run from the application project and choose a destination below. This refuses to replace an existing skill:
+For a manual copy, set `QAWOLF_PLUGIN_ROOT` to a reviewed checkout's `plugins/qawolf` directory. Run from the application project and choose the client's skills directory below. Check every destination before copying; this refuses to replace an existing skill:
 
 ```bash
 (
-  src="$QAWOLF_PLUGIN_ROOT/skills/qawolf"
-  dst=".agents/skills/qawolf"
-  test -f "$src/SKILL.md" || { printf 'Choose the reviewed plugin directory first\n' >&2; exit 1; }
-  test ! -e "$dst" && test ! -L "$dst" || { printf 'Refusing to replace %s\n' "$dst" >&2; exit 1; }
-  mkdir -p "$(dirname "$dst")" && cp -R "$src" "$dst"
+  src="$QAWOLF_PLUGIN_ROOT/skills"
+  dst=".agents/skills"
+  for skill in qawolf qawolf-flow-outline qawolf-onboarding; do
+    test -f "$src/$skill/SKILL.md" || { printf 'Missing skill: %s\n' "$skill" >&2; exit 1; }
+    test ! -e "$dst/$skill" && test ! -L "$dst/$skill" || { printf 'Refusing to replace %s\n' "$dst/$skill" >&2; exit 1; }
+  done
+  mkdir -p "$dst" || exit 1
+  for skill in qawolf qawolf-flow-outline qawolf-onboarding; do
+    cp -R "$src/$skill" "$dst/$skill" || exit 1
+  done
 )
 ```
 
-| Client                    | Project skill location                               | MCP setup                                             |
+| Client                    | Shared skill location                                | MCP setup                                             |
 | ------------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
 | Cursor                    | `.agents/skills/qawolf`                              | OAuth sign-in from Tools and Integrations             |
 | Windsurf                  | `.agents/skills/qawolf` or `.windsurf/skills/qawolf` | API key fallback; OAuth unverified                    |
 | Cline                     | `.cline/skills/qawolf`                               | API key fallback; OAuth unverified for this transport |
 | GitHub Copilot in VS Code | `.github/skills/qawolf` or `.agents/skills/qawolf`   | OAuth sign-in; no secure input needed                 |
 | Amp                       | `.agents/skills/qawolf`                              | Bundled skill-local config; OAuth unverified          |
-| Antigravity               | `.agents/skills/qawolf`                              | API key fallback; OAuth unverified                    |
 | Kiro                      | `.kiro/skills/qawolf`                                | OAuth sign-in with `/mcp auth`                        |
 | Zed                       | `.agents/skills/qawolf`                              | OAuth sign-in when no header is set                   |
 | CodeWhale                 | `.codewhale/skills/qawolf`                           | API key fallback; OAuth unverified                    |
@@ -302,19 +322,11 @@ Sources: [VS Code skills](https://code.visualstudio.com/docs/copilot/customizati
 
 ### Amp
 
-The skill's `mcp.json` configures MCP with no header, so Amp can sign in with OAuth. Amp connects at skill discovery and exposes tools when the skill loads. A same-name directly configured server overrides it; review existing entries.
+The shared `qawolf` skill's `mcp.json` configures MCP with no header. For direct Flow Outline or Onboarding use, configure the QA Wolf server in `amp.mcpServers` so tool availability does not depend on loading the shared skill first. A same-name directly configured server overrides the skill-local entry; review existing entries.
 
 Amp documents automatic OAuth for servers in its own `amp.mcpServers` config but not for a skill-local `mcp.json`, and `amp mcp remote login` covers only servers stored with ampcode.com. If the skill's server never prompts, move the entry into `amp.mcpServers`, or add the API key fallback header to the skill's `mcp.json`.
 
 Sources: [skills and skill-local MCP](https://ampcode.com/docs/customize/skills), [MCP configuration](https://ampcode.com/docs/customize/mcp).
-
-### Antigravity
-
-Gemini extension installation through `agy` is unverified. Copy the skill to `.agents/skills/qawolf`.
-
-In protected user `~/.gemini/config/mcp_config.json`, add `mcpServers.qawolf` with `serverUrl`. Antigravity's OAuth support is unverified. If it never prompts, add a literal bearer `Authorization` header; header environment expansion is unverified. Do not store the key in workspace `.agents/mcp_config.json`.
-
-Sources: [skills](https://antigravity.google/docs/skills), [MCP](https://antigravity.google/docs/mcp).
 
 ### Kiro
 
@@ -342,7 +354,7 @@ Sources: [skills](https://zed.dev/docs/ai/skills), [MCP](https://zed.dev/docs/ai
 
 ### CodeWhale
 
-Install the skill at `.codewhale/skills/qawolf`, then run:
+Install the three sibling skills under `.codewhale/skills/`, then run:
 
 ```bash
 codewhale mcp add qawolf --url https://app.qawolf.com/api/mcp
@@ -357,7 +369,7 @@ Sources: [skills](https://github.com/Hmbown/Codewhale/blob/main/docs/SKILLS.md),
 
 ### Swival
 
-Use `.swival/skills/qawolf` or `.agents/skills/qawolf`. Configure `mcp_servers.qawolf` with `type = "http"` and `url`.
+Install the three sibling skills under `.swival/skills/` or `.agents/skills/`. Configure `mcp_servers.qawolf` with `type = "http"` and `url`.
 
 Swival's OAuth support is unverified. If it never prompts, add `headers` with a literal bearer value. Header environment expansion is unverified. Store that value in user `~/.config/swival/config.toml` or a mode-0600 JSON file selected with `--mcp-config`, never project `swival.toml`.
 
@@ -368,7 +380,9 @@ Sources: [skills](https://github.com/Swival/swival/blob/master/docs.md/skills.md
 From a reviewed checkout:
 
 ```bash
-openclaw skills install "$QAWOLF_PLUGIN_ROOT/skills/qawolf" --as qawolf
+for skill in qawolf qawolf-flow-outline qawolf-onboarding; do
+  openclaw skills install "$QAWOLF_PLUGIN_ROOT/skills/$skill" --as "$skill" || break
+done
 openclaw mcp set qawolf \
   '{"url":"https://app.qawolf.com/api/mcp","transport":"streamable-http","auth":"oauth"}'
 openclaw mcp doctor qawolf --probe
@@ -403,7 +417,8 @@ For Aider, load the files without replacing existing context:
 ```bash
 aider \
   --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf/SKILL.md" \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf/references/onboarding.md" \
+  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-flow-outline/SKILL.md" \
+  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-onboarding/SKILL.md" \
   --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf/references/platforms.md"
 ```
 
@@ -411,6 +426,6 @@ Sources: [Junie guidance](https://github.com/JetBrains/junie-guidelines#how-to-u
 
 ## Updates and removal
 
-Use the original installer to update. For manual copies, review and replace only `qawolf`. To uninstall, remove its skill directory, instruction section, and MCP entry. Preserve other skills, settings, and credentials.
+Use the original installer to update. For manual copies, review and replace only `qawolf`, `qawolf-flow-outline`, and `qawolf-onboarding`. To uninstall, remove those skill directories, the QA Wolf instruction section, and its MCP entry. Preserve other skills, settings, and credentials.
 
 Repository updates do not publish to official directories, npm, or ClawHub.

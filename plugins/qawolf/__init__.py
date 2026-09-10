@@ -2,7 +2,5 @@ from pathlib import Path
 
 
 def register(ctx):
-    ctx.register_skill(
-        "qawolf",
-        Path(__file__).parent / "skills" / "qawolf" / "SKILL.md",
-    )
+    for name in ("qawolf", "qawolf-flow-outline", "qawolf-onboarding"):
+        ctx.register_skill(name, Path(__file__).parent / "skills" / name / "SKILL.md")
