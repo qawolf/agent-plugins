@@ -4,11 +4,15 @@ Skills supply instructions; MCP supplies tools. Some clients need separate setup
 
 ## Authentication and verification
 
-Connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth. Configure the server with no `Authorization` header. The client discovers QA Wolf's authorization server at `https://signin.qawolf.com`, registers itself, and opens a browser to sign you in. Most clients start this on the first connection. Some need an explicit auth command, noted with each client below.
+Connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth. Configure the server with no `Authorization` header. The client discovers QA Wolf's authorization server at `https://signin.qawolf.com`, registers itself, and signs you in.
+
+Clients raise the sign-in in one of two ways. Codex offers it inside the conversation the first time it calls a QA Wolf tool. The ChatGPT app, Claude Code, Claude Desktop, Gemini CLI, and Copilot CLI sign in when the server is added or on first connection, or take an explicit auth command, noted with each client below.
 
 A configured `Authorization` header switches OAuth off in several clients, so leave it out unless you are using the API key fallback.
 
-OAuth signs you in as a QA Wolf user. If your organization has one workspace, the connection binds to it and tools stop asking for `workspaceId`. If it has several, `whoami` returns the candidates, tools that accept `workspaceId` still need it, and browser tools stay unavailable until a workspace is bound.
+OAuth signs you in as a QA Wolf user, and the connection reaches every workspace you are a member of, across all of your organizations. `whoami` lists them, each with the organization that owns it. When there is exactly one, the connection binds to it and tools stop asking for `workspaceId`. When there are several it stays unbound, so tools that accept `workspaceId` need it, and a browser tool binds to the workspace you name on the call.
+
+A QA Wolf admin reaches every workspace, including those in organizations they are not a member of. `whoami` still lists only their own, and reports `canActOnAnyWorkspace` so any other can be named by id.
 
 ### API key fallback
 
@@ -40,17 +44,27 @@ codex plugin marketplace add qawolf/agent-plugins
 codex plugin add qawolf@qawolf
 ```
 
-Both plugins install the skill and MCP config, and both sign in with OAuth. Start a fresh session after installation.
+Both plugins install the skill and MCP config, and both sign in with OAuth. Claude Code asks on connection, so start a fresh session and approve the sign-in. Codex offers the sign-in inside the conversation the first time it calls a QA Wolf tool; Codex desktop uses the same installation, and needs a restart after it.
 
 When Claude Code needs sign-in, direct the user to its native `/mcp` controls rather than calling the conversational `authenticate` tool: "First, connect your account. Open `/mcp`, select QA Wolf, and choose Authenticate. Follow the browser sign-in, then return here."
-
-In Codex, approve the browser sign-in when prompted. Codex desktop uses the same installation; restart it.
 
 Let the client handle the browser callback and token storage. If the browser does not open, use the link in its authentication UI. If the redirect fails, paste the callback URL only into the client's dedicated authentication prompt, never ordinary chat. Confirm the connection with `whoami` before continuing onboarding.
 
 To sign in by hand, Claude Code needs the plugin-scoped server name, `claude mcp login plugin:qawolf:qawolf`. The bare name does not resolve for a plugin server. Codex uses `codex mcp login qawolf`. Both have a matching `logout`.
 
 Claude accepts `QAWOLF_MCP_URL` overrides. Codex uses a literal URL; use a reviewed local copy for staging.
+
+## ChatGPT app
+
+ChatGPT does not take MCP servers from an installed plugin, so add QA Wolf as a connector once. Turn on developer mode in settings, then add an MCP server with the URL `https://app.qawolf.com/api/mcp` and no header. ChatGPT authorizes it during setup. Add it on the web if the desktop app offers no way to create one, since the app uses the same connector.
+
+Then ask QA Wolf for something in a new chat. On a Business or Enterprise workspace an administrator can publish the same URL once for every member, which replaces the setup above.
+
+Installing the plugin still gives Codex the tools and gives both clients this skill. Its starter prompt, "Verify my QA Wolf connection and workspace", calls `whoami` and reports the workspaces you can act on.
+
+## Claude Desktop
+
+Add QA Wolf as a custom connector with the URL `https://app.qawolf.com/api/mcp` and no header, then authorize it. Claude asks on connection.
 
 ## GitHub Copilot CLI
 
@@ -73,7 +87,7 @@ Source: [Copilot plugin reference](https://docs.github.com/en/copilot/reference/
 gemini extensions install https://github.com/qawolf/agent-plugins
 ```
 
-Review the extension, then run `/mcp auth qawolf` to sign in. Use the explicit command; Gemini's automatic sign-in on connect does not reach QA Wolf yet, because it probes the endpoint with `HEAD` and QA Wolf answers `405` there instead of the `401` that carries the discovery header.
+Review the extension. Gemini signs in on the first connection; `/mcp auth qawolf` starts it by hand.
 
 Git installation uses the public root manifest and skills. Local installs can use `plugins/qawolf`. The private platform repository is not installable.
 

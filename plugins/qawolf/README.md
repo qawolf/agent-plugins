@@ -6,13 +6,13 @@ This is a preview distributed through the [QA Wolf plugin repository](https://gi
 
 ## Connect to QA Wolf
 
-QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth. Installing the plugin does not authenticate your connection. Use your client's authentication controls to sign in through `https://signin.qawolf.com` in your browser. Check the [preview status](https://github.com/qawolf/agent-plugins#status) before use.
+QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth through `https://signin.qawolf.com`. Codex offers the sign-in inside the conversation the first time it calls a QA Wolf tool. The ChatGPT app, Claude Code, Claude Desktop, and Gemini ask when the server is added or on first connection. Check the [preview status](https://github.com/qawolf/agent-plugins#status) before use.
 
 No API key is needed. Do not add an `Authorization` header to the plugin's MCP entry; in Claude Code and Codex a configured header switches OAuth off and the connection fails with HTTP 401.
 
 Where a browser sign-in cannot happen, such as CI or a container, use the API key fallback described in [platform setup](skills/qawolf/references/platforms.md). Keep any key out of shell history, source control, chats, issues, and screenshots.
 
-Browser tools need a bound workspace. OAuth binds one when your organization has a single QA Wolf workspace; a team API key is always bound to its team.
+OAuth reaches every workspace you are a member of, across all of your organizations. `whoami` lists them with the organization that owns each one. When there is exactly one the connection binds to it; otherwise pass `workspaceId`, and a browser tool binds to the workspace you name. A team API key is always bound to its team.
 
 ## Install in Claude Code
 
@@ -34,7 +34,15 @@ codex plugin marketplace add qawolf/agent-plugins
 codex plugin add qawolf@qawolf
 ```
 
-Start a new Codex session and approve the browser sign-in, or run `codex mcp login qawolf`. Then ask Codex to call `whoami` to verify the connection and account.
+Start a new Codex session, then ask Codex to call `whoami`. It offers the sign-in inside the conversation on that first tool call; `codex mcp login qawolf` starts it by hand.
+
+## Install in the ChatGPT app
+
+ChatGPT does not take MCP servers from an installed plugin, so add QA Wolf as a connector once. Turn on developer mode in settings, then add an MCP server with the URL `https://app.qawolf.com/api/mcp` and no header. ChatGPT authorizes it during setup. Then ask QA Wolf for something in a new chat.
+
+## Install in Claude Desktop
+
+Add QA Wolf as a custom connector with the URL `https://app.qawolf.com/api/mcp` and no header, then authorize it.
 
 ## Install in Google Antigravity CLI
 
@@ -70,7 +78,7 @@ A cloud browser bills while its runner exists. The skill instructs the agent to 
 - Connection failure or HTTP 404: check the configured URL and [preview status](https://github.com/qawolf/agent-plugins#status). Reinstalling the plugin cannot fix an unavailable service.
 - Sign-in never starts and the connection reports HTTP 401: an `Authorization` header is configured somewhere. Claude Code and Codex skip OAuth when one is set. Remove it from your own `qawolf` MCP entry and reconnect.
 - Sign-in fails or the session expires: run `claude mcp login plugin:qawolf:qawolf`, or `codex mcp login qawolf`, and complete the browser flow again.
-- Browser-tool authorization error: the connection has no bound workspace. Call `whoami`. If it lists several workspaces, pass `workspaceId` where tools accept it, or use a team API key for the target workspace.
+- Browser-tool authorization error: the connection reaches several workspaces, so it is not bound to one. Call `whoami`, then pass `workspaceId` for the workspace you want, or use a team API key already bound to it.
 - Missing agent tools: coverage requests require both `agent_send` and `agent_get`. Contact QA Wolf support if either is unavailable.
 
 Use the [platform guide](skills/qawolf/references/platforms.md) for client-specific connection settings. Never send a QA Wolf API key or OAuth token to an untrusted endpoint.

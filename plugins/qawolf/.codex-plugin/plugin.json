@@ -1,6 +1,6 @@
 {
   "name": "qawolf",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser from your editor.",
   "author": {
     "name": "QA Wolf",
@@ -32,7 +32,7 @@
     "privacyPolicyURL": "https://www.qawolf.com/legal/privacy-policy",
     "termsOfServiceURL": "https://www.qawolf.com/legal/terms",
     "defaultPrompt": [
-      "Ask QA Wolf to cover the checkout journey in this repository",
+      "Verify my QA Wolf connection and workspace",
       "Run the smoke-tagged QA Wolf flows and summarize what failed",
       "Open a QA Wolf browser and reproduce the login bug"
     ],

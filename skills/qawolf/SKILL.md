@@ -9,9 +9,9 @@ description: Shared QA Wolf connection, safety, and tool guidance for running fl
 
 ## Start here
 
-1. Reuse the existing QA Wolf connection. If `whoami` is available, call it before suggesting sign-in.
-2. Follow [Sign in](#sign-in) only if the client reports that authentication is required or `whoami` returns an authentication error. After sign-in, call `whoami` again. If tools are missing without an authentication prompt, check [client setup](references/platforms.md) rather than assuming sign-in will fix it. Stop if authentication or required tools remain unavailable. Never request QA Wolf keys or tokens in chat.
-3. Use the bound workspace reported by `whoami`. Otherwise, choose from its `workspaces` or `organizations[].workspaces`. Use the only workspace or a unique match to the requested name. Otherwise, ask the user to choose by name, not copy an ID. If workspace data is missing, stop and report the discovery or access problem. Choosing an ID does not bind the connection; browser tools require a bound workspace.
+1. Call `whoami` first. If it or any tool reports that the connection is not signed in, complete the sign-in this client offers and call the tool again. If no QA Wolf tool is available at all, this client has no QA Wolf connection: tell the user to add `https://app.qawolf.com/api/mcp` as an MCP server, and point them at [client setup](references/platforms.md) for their client. Never tell the user to reinstall the plugin or start a new session. Never call a tool name that is not in the table below. Never request QA Wolf keys or tokens in chat.
+2. Confirm the identity and workspace `whoami` reports. Stop if sign-in cannot be completed or required tools are missing. See [client setup](references/platforms.md) when a client needs its connection configured by hand.
+3. Act on the `workspace` that `whoami` reports, which it reports when the connection reaches exactly one. Otherwise choose from `workspaces`. Each entry carries the `organizationName` that owns it, so name a workspace by both when two share a name. Use the only workspace or a unique match to the requested name. Otherwise, ask the user to choose by name, not copy an ID. If `whoami` reports `canActOnAnyWorkspace`, a workspace the list omits can still be acted on, but ask the user for its id, since no tool resolves an unlisted workspace by name. If workspace data is missing, stop and report the discovery or access problem. Pass the one you chose as `workspaceId`, and a browser tool binds to it for that call.
 4. Resolve named environments with `environment_find`. Pass `workspaceId` on the tools whose live schema asks for it. A bound workspace removes that field.
 
 ## Choose the workflow
@@ -97,7 +97,7 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 | `runner_terminate` | write | End an interactive runner on the caller's team, and the pod it runs on with it. |
 | `tag_create` | write | Create a tag on the caller's team. |
 | `tag_list` | read | List the team's tags, alphabetical by name. |
-| `whoami` | read | Identify the credential and discover available workspaces. |
+| `whoami` | read | Identify the credential and list every workspace this connection can act on, with the organization that owns each one. |
 
 <!-- tools-table:end -->
 
