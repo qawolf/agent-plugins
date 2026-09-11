@@ -116,7 +116,7 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 | `runner_highlightSelector` | write | Highlight the elements a selector matches on an interactive runner's live page, and answer how many it matched. |
 | `runner_importPackage` | write | Install a package into an interactive runner's live run and import it, so a snippet or a selection can use it without a full run to reinstall dependencies. |
 | `runner_inspect` | read | Inspect one thing on an interactive runner: an element's HTML, the page's HTML simplified for a model, or a top-level variable's value as JSON. |
-| `runner_inspectMobile` | read | Inspect one thing on a mobile interactive runner: the Appium session's status, the WebView contexts available, the current context's page source, or the elements at a point or carrying some text. |
+| `runner_inspectMobile` | read | Inspect one thing on a mobile interactive runner: the Appium session's status, the WebView contexts available, the current context's page source, or the elements at a point, carrying some text, or matching a selector. |
 | `runner_launch` | write | Launch an interactive runner on the caller's team under an id the caller chooses. |
 | `runner_list` | read | List the runners running on the caller's team right now. |
 | `runner_performAction` | write | Perform one raw browser action on an interactive runner: click, double\_click, move, drag, scroll, keypress, type, or navigate. |
@@ -143,7 +143,7 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 
 Creating or finishing a flow goes through Flow Outline, and repairing one goes through Flow Maintenance. `automate` cannot create new flows. For an investigation or a follow-up in a session you already opened, send with `agent_send` directly and reuse the existing `sessionId`.
 
-After each `agent_send`, send a normal user-visible assistant message with the exact returned `url` before any tool call or wait. Tool output and thinking do not count as sharing it. Do not run a timer alongside the send. Monitor the same session with `agent_get`, waiting 30 to 60 seconds between checks. Continue silently when nothing changes; do not narrate timers or ask whether to keep monitoring. Include the link with blockers and outcomes. Follow [Flow Outline's monitoring guidance](../qawolf-flow-outline/SKILL.md#share-the-link-and-monitor-creation) for questions and stopping conditions. For new flows, [verify publication and readiness](../qawolf-flow-outline/SKILL.md#verify-publication-and-readiness) before claiming completion.
+After each `agent_send`, send a normal user-visible assistant message with the exact returned `url` before any tool call or wait. Tool output and thinking do not count as sharing it. Do not run a timer alongside the send. Monitor the same session with `agent_get`, waiting 30 to 60 seconds between checks and passing that session's previous `nextCursor` as `cursor`, so a check reads only what is new. Continue silently when a check returns no replies; do not narrate timers or ask whether to keep monitoring. Include the link with blockers and outcomes. Follow [Flow Outline's monitoring guidance](../qawolf-flow-outline/SKILL.md#share-the-link-and-monitor-creation) for questions and stopping conditions. For new flows, [verify publication and readiness](../qawolf-flow-outline/SKILL.md#verify-publication-and-readiness) before claiming completion.
 
 ## Share a file
 
