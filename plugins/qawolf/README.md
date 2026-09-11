@@ -54,11 +54,12 @@ Then run `/mcp auth qawolf` to sign in. Ask the agent to call `whoami` to confir
 
 ## Other coding agents
 
-The public repository also exposes the three sibling skills under `skills/` and a Pi package entrypoint. Install `qawolf`, `qawolf-flow-outline`, and `qawolf-onboarding` together. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
+The public repository also exposes the four sibling skills under `skills/` and a Pi package entrypoint. Install `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, and `qawolf-onboarding` together. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
 
 ## Skills
 
-- **Flow Outline** (`qawolf-flow-outline`) handles every new-flow request. Your coding agent explores through runner computer use, finds context independently, and uses the ask-user tool for gaps. It presents Arrange, Act, Assert outlines for approval, sends approved outlines through `agent_send`, and monitors creation.
+- **Flow Outline** (`qawolf-flow-outline`) handles every request to create a flow, including finishing a draft and covering a pull request. Your coding agent explores through runner computer use, finds context independently, and uses the ask-user tool for gaps. It presents Arrange, Act, Assert outlines for approval, sends approved outlines through `agent_send`, and monitors creation.
+- **Flow Maintenance** (`qawolf-flow-maintenance`) repairs a flow that already exists and has started failing. It reads the recorded run and diagnosis, then hands the fix to `agent_send` without launching a runner.
 - **Onboarding** (`qawolf-onboarding`) chooses the best first flow and invokes Flow Outline. A request that already names the new flow goes directly to Flow Outline.
 - **QA Wolf** (`qawolf`) supplies shared connection and safety guidance, plus existing-test operations.
 

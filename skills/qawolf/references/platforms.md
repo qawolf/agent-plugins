@@ -12,7 +12,7 @@ A configured `Authorization` header switches OAuth off in several clients, so le
 
 OAuth signs you in as a QA Wolf user, and the connection reaches every workspace you are a member of, across all of your organizations. `whoami` lists them, each with the organization that owns it. When there is exactly one, the connection binds to it and tools stop asking for `workspaceId`. When there are several it stays unbound, so tools that accept `workspaceId` need it, and a browser tool binds to the workspace you name on the call.
 
-A QA Wolf admin reaches every workspace, including those in organizations they are not a member of. `whoami` still lists only their own, and reports `canActOnAnyWorkspace` so any other can be named by id.
+A QA Wolf admin reaches every workspace, including those in organizations they are not a member of. `whoami` lists them all, and reports `canActOnAnyWorkspace`. Demo and sandbox workspaces appear only when the admin belongs to them.
 
 ### API key fallback
 

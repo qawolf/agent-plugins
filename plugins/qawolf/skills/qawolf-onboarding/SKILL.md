@@ -1,11 +1,13 @@
 ---
 name: qawolf-onboarding
-description: Use when the user wants to onboard an application to QA Wolf, get started with QA Wolf, choose their first test, or find the best first flow. Select a useful, achievable onboarding journey, then invoke qawolf-flow-outline for runner exploration, gap questions, AAA approval, creation, and monitoring. A specific new-flow request goes directly to qawolf-flow-outline.
+description: Use when the user wants to onboard an application to QA Wolf, get started with QA Wolf, choose their first test, or find the best first flow. Select a useful, achievable onboarding journey, then invoke qawolf-flow-outline for runner exploration, gap questions, AAA approval, creation, and monitoring. A specific new-flow request goes directly to qawolf-flow-outline, and a failing existing flow goes to qawolf-flow-maintenance.
 ---
 
 # Onboarding
 
 Choose the best first flow for this application, then hand it to Flow Outline. Do not maintain a second exploration or implementation workflow here.
+
+This skill is for an application with no coverage yet. A user who named the flow they want goes straight to [Flow Outline](../qawolf-flow-outline/SKILL.md), and one whose existing flow is failing goes to [Flow Maintenance](../qawolf-flow-maintenance/SKILL.md).
 
 ## Choose the first flow
 
