@@ -1,6 +1,6 @@
 ---
 name: qawolf-flow-maintenance
-description: Use when something is wrong with an existing QA Wolf flow, test, or run and the user wants it put right. The verb decides: fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, or update a flow to match a changed application. Covers "fix this flow", "fix the error in this flow", "investigate this flow", "this test is failing", "this flow is flaky", "why did this run fail", and a failing run or run attempt id. Read the recorded failure, then hand the repair to QA Wolf and monitor it. Complete, finish, create, add, or cover means nothing is broken, so that belongs to qawolf-flow-outline even when the user pastes a link to an existing draft.
+description: Use when something is wrong with an existing QA Wolf flow, test, or run and the user wants it put right. The verb decides: fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, or update a flow to match a changed application. Covers "fix this flow", "fix the error in this flow", "investigate this flow", "this test is failing", "this flow is flaky", "why did this run fail", and a failing run or run attempt id. Read the recorded failure, hand the repair to QA Wolf, require validation before publication, run the published repair, and preserve the flow's readiness. Complete, finish, create, add, or cover means nothing is broken, so that belongs to qawolf-flow-outline even when the user pastes a link to an existing draft.
 ---
 
 # Flow Maintenance
@@ -15,7 +15,7 @@ Read the shared [connection checks](../qawolf/SKILL.md#start-here), [link readin
 
 A pasted link gives you the workspace slug and the environment id without any lookup. Do not open it. Without a link, settle both the way the shared [connection checks](../qawolf/SKILL.md#start-here) describe, asking by name whenever more than one workspace or environment is left.
 
-Then identify the flow. `flow_list` with `includeDrafts: true` names the flows, since the flag defaults to false and a draft is otherwise left out; `run_find` names recent runs. If the user described a symptom without naming a flow, ask which one instead of guessing between similar names.
+Then identify the flow. `flow_list` with `includeDrafts: true` names the flows, since the flag defaults to false and a draft is otherwise left out; record the selected flow's readiness so the repair preserves it. `run_find` names recent runs. If the user described a symptom without naming a flow, ask which one instead of guessing between similar names.
 
 ## Read the recorded failure
 
@@ -63,8 +63,9 @@ Screen at failure: <what the failure showed, when you can tell>.
 Existing verdict: <bug or maintenance, issue <id>, when run.get carried a diagnosis>.
 History: <fails every run since <date>, or intermittent across <n> runs>.
 Constraints: <anything the fix must not change>.
-Validate the fix, then publish to this environment's flow-code branch.
+Validate the complete flow before publishing, then publish only the validated repair to this environment's flow-code branch.
 Report what changed, the validation result, and the published commit.
+If the flow still fails or cannot be repaired, do not publish the repair. Report the blocker and leave the environment's published code unchanged.
 Ask if the application changed on purpose and the test should be retired instead.
 ```
 
@@ -80,8 +81,16 @@ After the send, your next action is a normal assistant message containing the ex
 
 On `waiting-for-you`, answer from what you already read where you can, and use the client's ask-user tool for anything you cannot. Relay the answer through `agent_send` in the same session.
 
-## Confirm the repair
+## Verify the published repair
 
-A final reply is not proof. Before saying the flow is fixed, confirm the flow still exists at the readiness it had, using `flow_list` with `includeDrafts: true` so a repaired draft is still listed, and report the validation result QA Wolf gave along with the published commit. Report agent-reported validation as agent-reported unless you verified it.
+A final reply is not proof. Require QA Wolf to report that the complete flow passed validation before accepting a publication. If it reports a blocker or incomplete validation, report that result and stop without asking it to publish partial maintenance work.
 
-Do not activate a flow that was a draft before the repair, and do not change readiness as part of a fix. If the repair left something unfinished, name that specific step instead of calling the work done.
+After QA Wolf publishes a validated repair:
+
+1. Call `flow_list` with `includeDrafts: true`, match the exact flow ID, confirm that reconciliation includes the reported commit when available, and verify that readiness still matches the value recorded before the repair.
+2. Call `run_create` with the exact `flowId` and poll `run_get` until terminal. Check `excludedFlows` before polling. A flow listed there was not run, so report the exclusion and stop instead of accepting a passing result as a verified repair.
+3. If the run passes, report the validation, published commit, run URL, flow URL, session URL, and preserved readiness. A terminal passing run counts as success even when its attempts include earlier failures.
+4. If the run fails, send the complete error and every available trace, log, and video URL to QA Wolf through the same session. Ask it for another concrete repair, with the same requirement to validate before publishing. Monitor, verify reconciliation, and rerun.
+5. Continue while QA Wolf has a concrete corrective step. Stop when it identifies an application problem, missing access, inability to repair, or another failure with no new corrective step. Report the blocker and latest evidence without activating the flow or asking QA Wolf to publish a failing repair.
+
+Never change readiness as part of maintenance. Do not weaken the flow's intended assertions to make a run pass.

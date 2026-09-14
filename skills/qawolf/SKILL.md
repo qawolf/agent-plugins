@@ -27,7 +27,7 @@ https://app.qawolf.com/<workspaceSlug>/environments/<environmentId>/flows/<flowI
 
 The first path segment is the workspace `slug`, which `whoami` reports for every workspace. The segment after `environments/` is the `environmentId` that `agent_send`, `run_create` and `flow_list` take. So a link alone resolves both, with no lookup and no navigation.
 
-Never open, fetch, browse or navigate to `app.qawolf.com`. It needs a browser session this connection does not have, so it reaches a sign-in page and the work stops there. Everything the link carries is already in the link. The only exception is a user asking you to open that page for them.
+Never open, fetch, browse or navigate to `app.qawolf.com`. It needs a browser session this connection does not have, so it reaches a sign-in page and the work stops there. Everything the link carries is already in the link. The only exception is a user asking you to open that page for them. Giving a link to the user is not opening it, and the runner's watch url is meant to be handed over that way; see [drive a browser](#drive-a-browser).
 
 This restricts QA Wolf's own app and nothing else. Opening the customer's site or app is what the runner tools are for, and exploring it is expected when a skill calls for it. When you do not know which deployment to open, which login to use, or what credentials it takes, ask the user.
 
@@ -143,7 +143,7 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 
 Creating or finishing a flow goes through Flow Outline, and repairing one goes through Flow Maintenance. `automate` cannot create new flows. For an investigation or a follow-up in a session you already opened, send with `agent_send` directly and reuse the existing `sessionId`.
 
-After each `agent_send`, send a normal user-visible assistant message with the exact returned `url` before any tool call or wait. Tool output and thinking do not count as sharing it. Do not run a timer alongside the send. Monitor the same session with `agent_get`, waiting 30 to 60 seconds between checks and passing that session's previous `nextCursor` as `cursor`, so a check reads only what is new. Continue silently when a check returns no replies; do not narrate timers or ask whether to keep monitoring. Include the link with blockers and outcomes. Follow [Flow Outline's monitoring guidance](../qawolf-flow-outline/SKILL.md#share-the-link-and-monitor-creation) for questions and stopping conditions. For new flows, [verify publication and readiness](../qawolf-flow-outline/SKILL.md#verify-publication-and-readiness) before claiming completion.
+After each `agent_send`, send a normal user-visible assistant message with the exact returned `url` before any tool call or wait. Tool output and thinking do not count as sharing it. Do not run a timer alongside the send. Monitor the same session with `agent_get`, waiting 30 to 60 seconds between checks and passing that session's previous `nextCursor` as `cursor`, so a check reads only what is new. Continue silently when a check returns no replies; do not narrate timers or ask whether to keep monitoring. Include the link with blockers and outcomes. Follow [Flow Outline's monitoring guidance](../qawolf-flow-outline/SKILL.md#share-the-link-and-monitor-creation) for questions and stopping conditions. For new flows, [verify publication, run, and readiness](../qawolf-flow-outline/SKILL.md#verify-publication-run-and-readiness) before claiming completion.
 
 ## Share a file
 
@@ -159,7 +159,7 @@ Uploading the same name again replaces the file, so pick a name nothing else use
 
 1. Resolve the environment with `environment_find`, following [Start here](#start-here). When several remain, ask by name and say which one `defaultEnvironmentId` points at.
 2. Select flows with `flow_list` or tags with `tag_list`; check previous runs with `run_find`.
-3. Call `run_create` with `environmentId` and at least one flow or tag. Poll `run_get` for results.
+3. Call `run_create` with `environmentId` and at least one flow or tag. Select a draft explicitly by `flowId`; tags do not include draft flows. Check `excludedFlows`, then poll `run_get` until its status is terminal. A flow listed in `excludedFlows` was not run, so the result does not cover it.
 
 Both `run_create` and `run_find` require `environmentId`. After a timeout, check `run_find` in the same environment before resending; run creation has no idempotency key.
 
@@ -167,7 +167,9 @@ Both `run_create` and `run_find` require `environmentId`. After a timeout, check
 
 Browser tools require a bound workspace, from OAuth sign-in or a team API key. Launch with a unique `id` and `runnerName: "playwright"`. Use `runner_performAction` to start the desktop, then inspect `runner_takeScreenshot` before further actions. For `runner_runFlow`, send `env` or `environmentId`, not both.
 
-Runners bill until terminated. Call `runner_terminate` when done, before ending your turn.
+`runner_launch` answers a `url`: the QA Wolf page where the user watches this runner live and can take over its mouse and keyboard. After a successful launch, make your next action a normal user-visible assistant message containing that exact url, before the first `runner_performAction`. Tool output and thinking do not count as sharing it, and a link sent once exploration has finished points at a runner that is already gone. Every other `app.qawolf.com` link is data you parse; this one is a page for the user to open, and you still never open it yourself. See [reading a QA Wolf link](#reading-a-qa-wolf-link). When `alreadyRunning` is true the url is the same page, so share it again instead of assuming the user still has it. `runner_list` answers the same url for every runner on the team and `runner_get` answers it for one, so a link you no longer have is recoverable from the runner id.
+
+Runners bill until terminated. Call `runner_terminate` when done, before ending your turn. Terminating ends the live view, so say so when you report what you found.
 
 ## Handle errors
 

@@ -1,6 +1,6 @@
 ---
 name: qawolf-onboarding
-description: Use when the user wants to onboard an application to QA Wolf, get started with QA Wolf, choose their first test, or find the best first flow. Select a useful, achievable onboarding journey, then invoke qawolf-flow-outline for runner exploration, gap questions, AAA approval, creation, and monitoring. A specific new-flow request goes directly to qawolf-flow-outline, and a failing existing flow goes to qawolf-flow-maintenance.
+description: Use when the user wants to onboard an application to QA Wolf, get started with QA Wolf, choose their first test, or find the best first flow. Select a useful, achievable onboarding journey, then invoke qawolf-flow-outline for runner exploration, AAA approval, draft publication, an independent run, repair when needed, and activation after success. A specific new-flow request goes directly to qawolf-flow-outline, and a failing existing flow goes to qawolf-flow-maintenance.
 ---
 
 # Onboarding
@@ -25,4 +25,4 @@ Activate `qawolf-flow-outline` through the client's skill tool, using the regist
 
 Pass the application target, proposed or user-selected journey, selection rationale, known workspace and environment, approved access references, permission boundaries, prior observations, and unresolved gaps. Do not pass secret values or invent missing context.
 
-Flow Outline owns all remaining work: runner computer-use exploration, independent discovery, ask-user questions for gaps, AAA presentation, creation approval, `agent_send`, and monitoring. It may refine the candidate based on observations before presenting the outline. Do not call `agent_send` yourself or launch a second creation session after the handoff. Selecting a candidate is not approval to create it.
+Flow Outline owns all remaining work: runner computer-use exploration, independent discovery, ask-user questions for gaps, AAA presentation, approval for the full lifecycle, `agent_send`, draft publication, independent runs, repairs, and readiness. It may refine the candidate based on observations before presenting the outline. Do not call `agent_send` yourself or launch a second creation session after the handoff. Selecting a candidate is not approval to create it. Finish the approved batch, then report its results; another onboarding journey needs its own visible outline and approval.
