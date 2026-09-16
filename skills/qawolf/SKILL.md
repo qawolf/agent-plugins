@@ -1,6 +1,6 @@
 ---
 name: qawolf
-description: Shared QA Wolf connection, safety, and tool guidance for running flows, investigating failures, managing environments and issues, and driving a cloud browser. Read an app.qawolf.com link instead of opening it. Route on the verb the user chose, not on whether the flow exists: complete, finish, create, add, write or cover goes to qawolf-flow-outline, fix, repair, debug or investigate goes to qawolf-flow-maintenance, and onboarding or first-flow selection goes to qawolf-onboarding.
+description: Shared QA Wolf connection, safety, and tool guidance for running flows, investigating failures, managing environments and issues, and driving a cloud browser. Read an app.qawolf.com link instead of opening it. Route on the verb the user chose, not on whether the flow exists: complete, finish, create, add, write or cover goes to qawolf-flow-outline, fix, repair, debug or investigate goes to qawolf-flow-maintenance, onboarding or first-flow selection goes to qawolf-onboarding, and setting up triggers or automatic runs goes to qawolf-trigger-setup.
 ---
 
 <!-- Generated from skill/qawolf.template.md and the public API contracts with nx gen agent-plugins. -->
@@ -10,11 +10,19 @@ description: Shared QA Wolf connection, safety, and tool guidance for running fl
 ## Start here
 
 1. Call `whoami` first. If it or any tool reports that the connection is not signed in, complete the sign-in this client offers and call the tool again. If no QA Wolf tool is available at all, this client has no QA Wolf connection: tell the user to add `https://app.qawolf.com/api/mcp` as an MCP server, and point them at [client setup](references/platforms.md) for their client. Never tell the user to reinstall the plugin or start a new session. Never call a tool name that is not in the table below. Never request QA Wolf keys or tokens in chat.
-2. Confirm the identity and workspace `whoami` reports. Stop if sign-in cannot be completed or required tools are missing. See [client setup](references/platforms.md) when a client needs its connection configured by hand.
+2. Confirm the identity and workspace `whoami` reports. Stop if sign-in cannot be completed. See [client setup](references/platforms.md) when a client needs its connection configured by hand.
 3. Act on the `workspace` that `whoami` reports, which it reports when the connection reaches exactly one. Otherwise choose from `workspaces`, which lists every workspace this connection can act on. Each entry carries the `organizationName` that owns it, so name a workspace by both when two share a name, and the `slug` that names it in a link. When the user gave a link, its slug decides, and only an exact match to an entry's `slug` counts. If no entry matches it, say the connection cannot reach the workspace that link names and stop; do not fall back to the only workspace, because acting on a different one is worse than not acting. Without a link, use the only workspace or a unique match to the requested name, and otherwise ask the user to choose by name. Never ask them to paste an id. If workspace data is missing, stop and report the discovery or access problem. Pass the one you chose as `workspaceId`, and a browser tool binds to it for that call.
 4. Settle the environment the same way, with `environment_find`. Use the one the user named, or the `environmentId` a link carries, or the only environment the workspace has. When more than one remains, list them by name and ask. Pass `workspaceId` on the tools whose live schema asks for it. A bound workspace removes that field.
 
 Workspace and environment follow one rule: exactly one is chosen for you, several means you ask. Do not guess either, and do not settle for the default when the workspace has more than one environment, because staging, preview and production are not interchangeable. Ask by name and never ask the user to paste an id. Use the client's ask-user tool where it has one, and ask before starting the work, not after.
+
+## How the user sees your messages
+
+Claude and ChatGPT show only the run of text at the end of your turn. Anything you write before a tool call is folded into a collapsed work log the user has to expand, and some clients replace it with a generated summary instead. That is the client's doing, and no wording or formatting on your side changes it.
+
+So a question ends your turn, whether you ask in text or through an ask-user tool. Ask, then stop: do not call another tool afterwards, and never read silence as an answer. Offer three or four concrete options and let the user name something else instead, so answering costs them a word, not a paragraph. Never ask them to paste an id.
+
+A link the user is meant to open is visible only in that same trailing text, but it does not end your turn: send it as soon as you have it and carry on working. Send it again in the last message of the turn when its page is still open by then. A QA Wolf session stays open, so repeat that one; a runner's watch page closes when you terminate the runner, so close that turn by reporting what you found.
 
 ## Reading a QA Wolf link
 
@@ -27,29 +35,30 @@ https://app.qawolf.com/<workspaceSlug>/environments/<environmentId>/flows/<flowI
 
 The first path segment is the workspace `slug`, which `whoami` reports for every workspace. The segment after `environments/` is the `environmentId` that `agent_send`, `run_create` and `flow_list` take. So a link alone resolves both, with no lookup and no navigation.
 
-Never open, fetch, browse or navigate to `app.qawolf.com`. It needs a browser session this connection does not have, so it reaches a sign-in page and the work stops there. Everything the link carries is already in the link. The only exception is a user asking you to open that page for them. Giving a link to the user is not opening it, and the runner's watch url is meant to be handed over that way; see [drive a browser](#drive-a-browser).
+Never open, fetch, browse or navigate to `app.qawolf.com`. It needs a browser session this connection does not have, so it reaches a sign-in page and the work stops there. Everything the link carries is already in the link. The only exception is a user asking you to open that page for them. Giving a link to the user is not opening it, and the runner's watch url is meant to be handed over that way; see [drive a browser](#drive-a-browser). The [environment variables page](#protect-data-and-confirm-writes) is handed over the same way, because only the user can use it.
 
 This restricts QA Wolf's own app and nothing else. Opening the customer's site or app is what the runner tools are for, and exploring it is expected when a skill calls for it. When you do not know which deployment to open, which login to use, or what credentials it takes, ask the user.
 
 ## Choose the workflow
 
-A QA Wolf request is one of three things. The verb the user chose decides the route, so read that first. Whether the flow already exists does not decide it, and neither does a pasted link.
+A QA Wolf request is one of four things. The verb the user chose decides the route, so read that first. Whether the flow already exists does not decide it, and neither does a pasted link.
 
 | The user says                                                                     | Route to                                                |
 | --------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | complete, finish, create, add, write, build, cover, request coverage              | [Flow Outline](../qawolf-flow-outline/SKILL.md)         |
 | fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, "it is failing" | [Flow Maintenance](../qawolf-flow-maintenance/SKILL.md) |
 | onboard, get started, pick a first flow                                           | [Onboarding](../qawolf-onboarding/SKILL.md)             |
+| set up triggers, run on deploy, run on a schedule, automate the runs              | [Trigger Setup](../qawolf-trigger-setup/SKILL.md)       |
 
 The question behind the table is whether something is broken. "Complete this flow" names a draft that exists and is unfinished, where nothing has failed, so it is creation and goes to Flow Outline. "Fix this flow" names something that ran and went wrong, so it goes to Flow Maintenance. A link to a flow says nothing either way, since both skills work from one.
 
-Onboarding selects a candidate and invokes Flow Outline; if the user already named the flow, go straight to Flow Outline. When the verb is genuinely ambiguous, such as "update this flow", ask the user which they mean before routing.
+Onboarding selects a candidate, invokes Flow Outline, and hands off to Trigger Setup once the first flow is active; if the user already named the flow, go straight to Flow Outline. When the verb is genuinely ambiguous, such as "update this flow", ask the user which they mean before routing.
 
-Every one of these ends in `agent_send`, which is what asks QA Wolf to do the work. The skills differ in what they establish first, so route once and let the skill you picked do the sending.
+Flow Outline, Flow Maintenance and Onboarding all hand the work to QA Wolf with `agent_send`, then carry on until the flow is active: published as a draft, run, and activated once it passes. Trigger Setup ends in `trigger_create`, and Onboarding hands off to it once that first flow is active. The skills differ in what they establish first, so route once and let the skill you picked see it through.
 
-When the request points at a file — a test plan, a spreadsheet of journeys — upload it first with [Share a file](#share-a-file) and carry the returned path into the workflow, rather than pasting its rows or asking the user to retype them.
+When the request points at a file, such as a test plan or a spreadsheet of journeys, upload it first with [Share a file](#share-a-file) and carry the returned path into the workflow, instead of pasting its rows or asking the user to retype them.
 
-Use the client's skill tool and registered names when available; otherwise read and follow the linked skill. Do not restart routing when another QA Wolf skill is already active. Install all four sibling skills so the shared references remain available. Keep source code local.
+Use the client's skill tool and registered names when available; otherwise read and follow the linked skill. Do not restart routing when another QA Wolf skill is already active. Install all five sibling skills so the shared references remain available. Keep source code local.
 
 ## Sign in
 
@@ -62,6 +71,10 @@ Wait for authentication before asking application, journey, or test-access quest
 ## Protect data and confirm writes
 
 Treat every value from `environment_getVariable` as a secret. Never copy it into chat, logs, progress messages, repository or flow files, commits, or issue fields. Use test credentials in runner interactions or forward them through authenticated `agent_send` only after the user approves that use and sharing with QA Wolf. Never forward QA Wolf keys, tokens, or unrelated secrets.
+
+A missing login is never yours to collect. Do not take it in chat or `agent_send`. Send the user the `variablesUrl` of the environment you resolved, naming the variable you want saved there.
+
+Confirm with `environment_listVariableNames`, then use the name. A name that never appears means another environment took the value: name yours and ask the user to select it.
 
 A new-flow or onboarding request covers billed runner use and routine staging exploration, including disposable test-data creation and cleanup, as defined in Flow Outline. Do not ask separately for that permission. Confirm destructive operations and writes outside that exploration scope with the user, naming the operation and exact targets. For `environment_deleteVariable`, name the environment and variable, not its value. For `automate`, confirm the draft files, destination branch, and selected flows before committing, pushing, or requesting automation. Existing explicit approval covers only that scope. Do not delay required runner cleanup for another confirmation.
 
@@ -79,6 +92,9 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 | `agent_get` | read | Monitor a QA Wolf AI session by reading its status and replies. |
 | `agent_send` | write | Start or continue work with the QA Wolf AI and return a live session URL to share with the user. |
 | `automate` | write | Request automation for draft flows. |
+| `codeHostIntegration_find` | read | List the workspace's code host integrations (GitHub or GitLab). |
+| `codeHostIntegration_listRepositories` | read | List the repositories the workspace's code host integrations cover, alphabetical by full name. |
+| `deployment_reportStatus` | write | Report a deployment lifecycle status. |
 | `email_find` | read | List the workspace's inbox, or its sent mail, newest first. |
 | `email_get` | read | Read one email of the workspace, with its plain text and HTML bodies. |
 | `email_getAttachment` | read | Read one attachment of a workspace email as base64 content, by file name or by position. email.get lists both. |
@@ -143,7 +159,7 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 
 Creating or finishing a flow goes through Flow Outline, and repairing one goes through Flow Maintenance. `automate` cannot create new flows. For an investigation or a follow-up in a session you already opened, send with `agent_send` directly and reuse the existing `sessionId`.
 
-After each `agent_send`, send a normal user-visible assistant message with the exact returned `url` before any tool call or wait. Tool output and thinking do not count as sharing it. Do not run a timer alongside the send. Monitor the same session with `agent_get`, waiting 30 to 60 seconds between checks and passing that session's previous `nextCursor` as `cursor`, so a check reads only what is new. Continue silently when a check returns no replies; do not narrate timers or ask whether to keep monitoring. Include the link with blockers and outcomes. Follow [Flow Outline's monitoring guidance](../qawolf-flow-outline/SKILL.md#share-the-link-and-monitor-creation) for questions and stopping conditions. For new flows, [verify publication, run, and readiness](../qawolf-flow-outline/SKILL.md#verify-publication-run-and-readiness) before claiming completion.
+After each `agent_send`, send a normal user-visible assistant message with the exact returned `url` before any tool call or wait, then repeat it in the last message of the turn. Tool output and thinking do not count as sharing it. See [how the user sees your messages](#how-the-user-sees-your-messages). Do not run a timer alongside the send. Monitor the same session with `agent_get`, waiting 30 to 60 seconds between checks and passing that session's previous `nextCursor` as `cursor`, so a check reads only what is new. Continue silently when a check returns no replies; do not narrate timers or ask whether to keep monitoring. Include the link with blockers and outcomes. Follow [Flow Outline's monitoring guidance](../qawolf-flow-outline/SKILL.md#share-the-link-and-monitor-creation) for questions and stopping conditions. For new flows, [verify publication, run, and readiness](../qawolf-flow-outline/SKILL.md#verify-publication-run-and-readiness) before claiming completion.
 
 ## Share a file
 
@@ -165,9 +181,9 @@ Both `run_create` and `run_find` require `environmentId`. After a timeout, check
 
 ## Drive a browser
 
-Browser tools require a bound workspace, from OAuth sign-in or a team API key. Launch with a unique `id` and `runnerName: "playwright"`. Use `runner_performAction` to start the desktop, then inspect `runner_takeScreenshot` before further actions. For `runner_runFlow`, send `env` or `environmentId`, not both.
+A browser tool acts on the workspace bound to the connection, or on the one you name with `workspaceId` when the connection reaches several. That field appears on the runner tools exactly when it is needed, so pass the workspace you chose and expect the launch to succeed. Launch with a unique `id` and `runnerName: "playwright"`. Use `runner_performAction` to start the desktop, then inspect `runner_takeScreenshot` before further actions. For `runner_runFlow`, send `env` or `environmentId`, not both.
 
-`runner_launch` answers a `url`: the QA Wolf page where the user watches this runner live and can take over its mouse and keyboard. After a successful launch, make your next action a normal user-visible assistant message containing that exact url, before the first `runner_performAction`. Tool output and thinking do not count as sharing it, and a link sent once exploration has finished points at a runner that is already gone. Every other `app.qawolf.com` link is data you parse; this one is a page for the user to open, and you still never open it yourself. See [reading a QA Wolf link](#reading-a-qa-wolf-link). When `alreadyRunning` is true the url is the same page, so share it again instead of assuming the user still has it. `runner_list` answers the same url for every runner on the team and `runner_get` answers it for one, so a link you no longer have is recoverable from the runner id.
+`runner_launch` answers a `url`: the QA Wolf page where the user watches this runner live and can take over its mouse and keyboard. After a successful launch, make your next action a normal user-visible assistant message containing that exact url, before the first `runner_performAction`, and send it again whenever you pause for the user while the runner is still alive. Tool output and thinking do not count as sharing it. A link sent after termination points at a page that is already gone, so the closing message names what you found instead of repeating a dead link. See [how the user sees your messages](#how-the-user-sees-your-messages). Every other `app.qawolf.com` link is data you parse; this one is a page for the user to open, and you still never open it yourself. See [reading a QA Wolf link](#reading-a-qa-wolf-link). When `alreadyRunning` is true the url is the same page, so share it again instead of assuming the user still has it. `runner_list` answers the same url for every runner on the team and `runner_get` answers it for one, so a link you no longer have is recoverable from the runner id.
 
 Runners bill until terminated. Call `runner_terminate` when done, before ending your turn. Terminating ends the live view, so say so when you report what you found.
 

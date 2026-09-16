@@ -73,11 +73,11 @@ Quote `failure.error` in full and unedited. Do not summarise it, and do not stop
 
 Artifact links stay valid for about a day, and a link 404s when that attempt produced no such artifact. Read `run_get` again if the send is delayed, and drop a line whose value you do not have instead of sending a placeholder. `agent_send` carries text only, so paste the values and never attach or paste a file.
 
-Never send credentials, source code, or configuration files. Reference test access QA Wolf can resolve for itself.
+Never send credentials, source code, or configuration files. Reference test access QA Wolf can resolve for itself, and when a repair needs a login QA Wolf does not have, send the user to the [environment variables page](../qawolf/SKILL.md#protect-data-and-confirm-writes) and name the variable.
 
 ## Share the link and monitor
 
-After the send, your next action is a normal assistant message containing the exact returned `url`. Tool output and thinking do not count. Then monitor with `agent_get` and the same `sessionId`, following the shared [monitoring rules](../qawolf/SKILL.md#work-with-the-qa-wolf-agent): 30 to 60 seconds between checks, silence while nothing changes, no narration of waiting.
+After the send, your next action is a normal assistant message containing the exact returned `url`, repeated in the last message of the turn. Tool output and thinking do not count. See [how the user sees your messages](../qawolf/SKILL.md#how-the-user-sees-your-messages). Then monitor with `agent_get` and the same `sessionId`, following the shared [monitoring rules](../qawolf/SKILL.md#work-with-the-qa-wolf-agent): 30 to 60 seconds between checks, silence while nothing changes, no narration of waiting.
 
 On `waiting-for-you`, answer from what you already read where you can, and use the client's ask-user tool for anything you cannot. Relay the answer through `agent_send` in the same session.
 

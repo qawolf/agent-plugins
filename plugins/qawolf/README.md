@@ -2,11 +2,11 @@
 
 Use QA Wolf from your coding agent to request test coverage, run flows, inspect results, and drive a cloud browser. See [platform setup](skills/qawolf/references/platforms.md) for native plugins, portable skills, MCP configuration, and guidance-only limitations.
 
-This is a preview distributed through the [QA Wolf plugin repository](https://github.com/qawolf/agent-plugins). It is not yet listed in the providers' official directories. The plugin signs in with OAuth.
+Install it from the [QA Wolf plugin repository](https://github.com/qawolf/agent-plugins) through your client's plugin marketplace. The plugin signs in with OAuth.
 
 ## Connect to QA Wolf
 
-QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth through `https://signin.qawolf.com`. Codex offers the sign-in inside the conversation the first time it calls a QA Wolf tool. The ChatGPT app, Claude Code, Claude Desktop, and Gemini ask when the server is added or on first connection. Check the [preview status](https://github.com/qawolf/agent-plugins#status) before use.
+QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth through `https://signin.qawolf.com`. Codex offers the sign-in inside the conversation the first time it calls a QA Wolf tool. The ChatGPT app, Claude Code, Claude Desktop, and Gemini ask when the server is added or on first connection.
 
 No API key is needed. Do not add an `Authorization` header to the plugin's MCP entry; in Claude Code and Codex a configured header switches OAuth off and the connection fails with HTTP 401.
 
@@ -54,16 +54,17 @@ Then run `/mcp auth qawolf` to sign in. Ask the agent to call `whoami` to confir
 
 ## Other coding agents
 
-The public repository also exposes the four sibling skills under `skills/` and a Pi package entrypoint. Install `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, and `qawolf-onboarding` together. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
+The public repository also exposes the five sibling skills under `skills/` and a Pi package entrypoint. Install `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, and `qawolf-trigger-setup` together. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
 
 ## Skills
 
 - **Flow Outline** (`qawolf-flow-outline`) handles every request to create a flow, including finishing a draft and covering a pull request. Your coding agent explores through runner computer use, finds context independently, and uses the ask-user tool for gaps. It presents Arrange, Act, Assert outlines for approval, sends approved outlines through `agent_send`, and monitors creation.
 - **Flow Maintenance** (`qawolf-flow-maintenance`) repairs a flow that already exists and has started failing. It reads the recorded run and diagnosis, then hands the fix to `agent_send` without launching a runner.
-- **Onboarding** (`qawolf-onboarding`) chooses the best first flow and invokes Flow Outline. A request that already names the new flow goes directly to Flow Outline.
+- **Onboarding** (`qawolf-onboarding`) chooses the best first flow and invokes Flow Outline, then hands off to Trigger Setup once the flow is active. A request that already names the new flow goes directly to Flow Outline.
+- **Trigger Setup** (`qawolf-trigger-setup`) makes flows run automatically. It reads the repository's CI, recommends a deployment trigger through GitHub or GitLab Deployments or a `deployment.reportStatus` call, and finishes with a scheduled trigger when the pipeline will not change.
 - **QA Wolf** (`qawolf`) supplies shared connection and safety guidance, plus existing-test operations.
 
-Exploration requires a bound workspace. Your new-flow or onboarding request covers billed browser use and routine staging exploration without a separate permission prompt. Your coding agent displays the full AAA before asking for approval, then shares the session URL before monitoring. It continues silently when status is unchanged and verifies publication and the approved draft or active readiness before reporting completion.
+Your new-flow or onboarding request covers billed browser use and routine staging exploration without a separate permission prompt. Your coding agent displays the full AAA before asking for approval, then shares the session URL before monitoring. It continues silently when status is unchanged and verifies publication and the approved draft or active readiness before reporting completion.
 
 ## Try it
 
@@ -76,7 +77,7 @@ A cloud browser bills while its runner exists. The skill instructs the agent to 
 
 ## Troubleshooting
 
-- Connection failure or HTTP 404: check the configured URL and [preview status](https://github.com/qawolf/agent-plugins#status). Reinstalling the plugin cannot fix an unavailable service.
+- Connection failure or HTTP 404: check the configured URL. Reinstalling the plugin cannot fix an unavailable service.
 - Sign-in never starts and the connection reports HTTP 401: an `Authorization` header is configured somewhere. Claude Code and Codex skip OAuth when one is set. Remove it from your own `qawolf` MCP entry and reconnect.
 - Sign-in fails or the session expires: run `claude mcp login plugin:qawolf:qawolf`, or `codex mcp login qawolf`, and complete the browser flow again.
 - Browser-tool authorization error: the connection reaches several workspaces, so it is not bound to one. Call `whoami`, then pass `workspaceId` for the workspace you want, or use a team API key already bound to it.
