@@ -1,6 +1,6 @@
 ---
 name: qawolf
-description: Shared QA Wolf connection, safety, and tool guidance for running flows, investigating failures, managing environments and issues, and driving a cloud browser. Read an app.qawolf.com link instead of opening it. Route on the verb the user chose, not on whether the flow exists: complete, finish, create, add, write or cover goes to qawolf-flow-outline, fix, repair, debug or investigate goes to qawolf-flow-maintenance, onboarding or first-flow selection goes to qawolf-onboarding, and setting up triggers or automatic runs goes to qawolf-trigger-setup.
+description: "Shared QA Wolf connection, safety, and tool guidance for running flows, investigating failures, managing environments and issues, and driving a cloud browser. Read an app.qawolf.com link instead of opening it. Route on the verb the user chose, not on whether the flow exists: complete, finish, create, add, write or cover goes to qawolf-flow-outline, fix, repair, debug or investigate goes to qawolf-flow-maintenance, onboarding or first-flow selection goes to qawolf-onboarding, setting up triggers or automatic runs goes to qawolf-trigger-setup, and moving off legacy triggers goes to qawolf-trigger-migration."
 ---
 
 <!-- Generated from skill/qawolf.template.md and the public API contracts with nx gen agent-plugins. -->
@@ -41,24 +41,25 @@ This restricts QA Wolf's own app and nothing else. Opening the customer's site o
 
 ## Choose the workflow
 
-A QA Wolf request is one of four things. The verb the user chose decides the route, so read that first. Whether the flow already exists does not decide it, and neither does a pasted link.
+A QA Wolf request is one of five things. The verb the user chose decides the route, so read that first. Whether the flow already exists does not decide it, and neither does a pasted link.
 
-| The user says                                                                     | Route to                                                |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| complete, finish, create, add, write, build, cover, request coverage              | [Flow Outline](../qawolf-flow-outline/SKILL.md)         |
-| fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, "it is failing" | [Flow Maintenance](../qawolf-flow-maintenance/SKILL.md) |
-| onboard, get started, pick a first flow                                           | [Onboarding](../qawolf-onboarding/SKILL.md)             |
-| set up triggers, run on deploy, run on a schedule, automate the runs              | [Trigger Setup](../qawolf-trigger-setup/SKILL.md)       |
+| The user says                                                                     | Route to                                                  |
+| --------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| complete, finish, create, add, write, build, cover, request coverage              | [Flow Outline](../qawolf-flow-outline/SKILL.md)           |
+| fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, "it is failing" | [Flow Maintenance](../qawolf-flow-maintenance/SKILL.md)   |
+| onboard, get started, pick a first flow                                           | [Onboarding](../qawolf-onboarding/SKILL.md)               |
+| set up triggers, run on deploy, run on a schedule, automate the runs              | [Trigger Setup](../qawolf-trigger-setup/SKILL.md)         |
+| migrate my triggers, move off legacy triggers, upgrade to global triggers         | [Trigger Migration](../qawolf-trigger-migration/SKILL.md) |
 
 The question behind the table is whether something is broken. "Complete this flow" names a draft that exists and is unfinished, where nothing has failed, so it is creation and goes to Flow Outline. "Fix this flow" names something that ran and went wrong, so it goes to Flow Maintenance. A link to a flow says nothing either way, since both skills work from one.
 
 Onboarding selects a candidate, invokes Flow Outline, and hands off to Trigger Setup once the first flow is active; if the user already named the flow, go straight to Flow Outline. When the verb is genuinely ambiguous, such as "update this flow", ask the user which they mean before routing.
 
-Flow Outline, Flow Maintenance and Onboarding all hand the work to QA Wolf with `agent_send`, then carry on until the flow is active: published as a draft, run, and activated once it passes. Trigger Setup ends in `trigger_create`, and Onboarding hands off to it once that first flow is active. The skills differ in what they establish first, so route once and let the skill you picked see it through.
+Flow Outline, Flow Maintenance and Onboarding all hand the work to QA Wolf with `agent_send`, then carry on until the flow is active: published as a draft, run, and activated once it passes. Trigger Setup ends in `trigger_create`, Trigger Migration in the pause that follows it, and Onboarding hands off to Trigger Setup once that first flow is active. The skills differ in what they establish first, so route once and let the skill you picked see it through.
 
 When the request points at a file, such as a test plan or a spreadsheet of journeys, upload it first with [Share a file](#share-a-file) and carry the returned path into the workflow, instead of pasting its rows or asking the user to retype them.
 
-Use the client's skill tool and registered names when available; otherwise read and follow the linked skill. Do not restart routing when another QA Wolf skill is already active. Install all five sibling skills so the shared references remain available. Keep source code local.
+Use the client's skill tool and registered names when available; otherwise read and follow the linked skill. Do not restart routing when another QA Wolf skill is already active. Install all six sibling skills so the shared references remain available. Keep source code local.
 
 ## Sign in
 
@@ -94,6 +95,8 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 | `automate` | write | Request automation for draft flows. |
 | `codeHostIntegration_find` | read | List the workspace's code host integrations (GitHub or GitLab). |
 | `codeHostIntegration_listRepositories` | read | List the repositories the workspace's code host integrations cover, alphabetical by full name. |
+| `deployment_find` | read | List the deployments QA Wolf has received for the workspace, newest first. |
+| `deployment_listTriggerEvaluations` | read | List the per-trigger verdicts recorded when a deployment was evaluated against the workspace's triggers. |
 | `deployment_reportStatus` | write | Report a deployment lifecycle status. |
 | `email_find` | read | List the workspace's inbox, or its sent mail, newest first. |
 | `email_get` | read | Read one email of the workspace, with its plain text and HTML bodies. |
@@ -159,7 +162,7 @@ This generated index gives each tool's purpose. Before using a tool, read its li
 
 Creating or finishing a flow goes through Flow Outline, and repairing one goes through Flow Maintenance. `automate` cannot create new flows. For an investigation or a follow-up in a session you already opened, send with `agent_send` directly and reuse the existing `sessionId`.
 
-After each `agent_send`, send a normal user-visible assistant message with the exact returned `url` before any tool call or wait, then repeat it in the last message of the turn. Tool output and thinking do not count as sharing it. See [how the user sees your messages](#how-the-user-sees-your-messages). Do not run a timer alongside the send. Monitor the same session with `agent_get`, waiting 30 to 60 seconds between checks and passing that session's previous `nextCursor` as `cursor`, so a check reads only what is new. Continue silently when a check returns no replies; do not narrate timers or ask whether to keep monitoring. Include the link with blockers and outcomes. Follow [Flow Outline's monitoring guidance](../qawolf-flow-outline/SKILL.md#share-the-link-and-monitor-creation) for questions and stopping conditions. For new flows, [verify publication, run, and readiness](../qawolf-flow-outline/SKILL.md#verify-publication-run-and-readiness) before claiming completion.
+After each `agent_send`, send a normal user-visible assistant message with the exact returned `url` before any tool call or wait, then repeat it in the last message of the turn. Tool output and thinking do not count as sharing it. See [how the user sees your messages](#how-the-user-sees-your-messages). Do not run a timer alongside the send. Monitor the same session with `agent_get`, passing `waitSeconds: 45` and that session's previous `nextCursor` as `cursor`. Each check is held open until something happens, so check again immediately; never sleep or run a timer. Continue silently when a check returns no replies; do not narrate waiting or ask whether to keep monitoring. Include the link with blockers and outcomes. Follow [Flow Outline's monitoring guidance](../qawolf-flow-outline/SKILL.md#share-the-link-and-monitor-creation) for questions and stopping conditions. For new flows, [verify publication, run, and readiness](../qawolf-flow-outline/SKILL.md#verify-publication-run-and-readiness) before claiming completion.
 
 ## Share a file
 

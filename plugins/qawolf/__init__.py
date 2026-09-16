@@ -7,6 +7,7 @@ def register(ctx):
         "qawolf-flow-maintenance",
         "qawolf-flow-outline",
         "qawolf-onboarding",
+        "qawolf-trigger-migration",
         "qawolf-trigger-setup",
     ):
         ctx.register_skill(name, Path(__file__).parent / "skills" / name / "SKILL.md")

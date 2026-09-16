@@ -1,6 +1,6 @@
 ---
 name: qawolf-flow-maintenance
-description: Use when something is wrong with an existing QA Wolf flow, test, or run and the user wants it put right. The verb decides: fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, or update a flow to match a changed application. Covers "fix this flow", "fix the error in this flow", "investigate this flow", "this test is failing", "this flow is flaky", "why did this run fail", and a failing run or run attempt id. Read the recorded failure, hand the repair to QA Wolf, require validation before publication, run the published repair, and preserve the flow's readiness. Complete, finish, create, add, or cover means nothing is broken, so that belongs to qawolf-flow-outline even when the user pastes a link to an existing draft.
+description: 'Use when something is wrong with an existing QA Wolf flow, test, or run and the user wants it put right. The verb decides: fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, or update a flow to match a changed application. Covers "fix this flow", "fix the error in this flow", "investigate this flow", "this test is failing", "this flow is flaky", "why did this run fail", and a failing run or run attempt id. Read the recorded failure, hand the repair to QA Wolf, require validation before publication, run the published repair, and preserve the flow''s readiness. Complete, finish, create, add, or cover means nothing is broken, so that belongs to qawolf-flow-outline even when the user pastes a link to an existing draft.'
 ---
 
 # Flow Maintenance
@@ -77,7 +77,7 @@ Never send credentials, source code, or configuration files. Reference test acce
 
 ## Share the link and monitor
 
-After the send, your next action is a normal assistant message containing the exact returned `url`, repeated in the last message of the turn. Tool output and thinking do not count. See [how the user sees your messages](../qawolf/SKILL.md#how-the-user-sees-your-messages). Then monitor with `agent_get` and the same `sessionId`, following the shared [monitoring rules](../qawolf/SKILL.md#work-with-the-qa-wolf-agent): 30 to 60 seconds between checks, silence while nothing changes, no narration of waiting.
+After the send, your next action is a normal assistant message containing the exact returned `url`, repeated in the last message of the turn. Tool output and thinking do not count. See [how the user sees your messages](../qawolf/SKILL.md#how-the-user-sees-your-messages). Then monitor with `agent_get` and the same `sessionId`, following the shared [monitoring rules](../qawolf/SKILL.md#work-with-the-qa-wolf-agent): `waitSeconds: 45` on every check with no sleep in between, silence while nothing changes, no narration of waiting.
 
 On `waiting-for-you`, answer from what you already read where you can, and use the client's ask-user tool for anything you cannot. Relay the answer through `agent_send` in the same session.
 

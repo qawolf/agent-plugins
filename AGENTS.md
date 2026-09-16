@@ -2,7 +2,7 @@
 
 Apply this guidance when the user asks QA Wolf to create, run, or investigate tests. It does not replace the application's own development instructions.
 
-Load `skills/qawolf/SKILL.md` for shared connection and safety rules. Install the sibling `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding` and `qawolf-trigger-setup` skills too. A project may keep these under `.agents/skills/` or its client's native skill location.
+Load `skills/qawolf/SKILL.md` for shared connection and safety rules. Install the sibling `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup` and `qawolf-trigger-migration` skills too. A project may keep these under `.agents/skills/` or its client's native skill location.
 
 A rule or skill file does not expose MCP tools. Configure the client's QA Wolf MCP connection separately unless its native plugin does that. Verify the connection with `whoami`. If a tool reports the connection is not signed in, complete the sign-in this client offers and call it again; some clients raise that prompt inside the conversation, others ask on connection. Never tell the user to reinstall the plugin or start a new session.
 
@@ -13,5 +13,7 @@ To fix, repair, debug or investigate a flow that is failing, invoke `qawolf-flow
 For onboarding or choosing a first flow, invoke `qawolf-onboarding` or read `skills/qawolf-onboarding/SKILL.md`. It selects the best candidate, invokes Flow Outline, and hands off to Trigger Setup once the first flow is active. If the user already named the flow, use Flow Outline directly.
 
 To make flows run automatically, on deploys or on a schedule, invoke `qawolf-trigger-setup` or read `skills/qawolf-trigger-setup/SKILL.md`. It recommends a deployment trigger first and never creates a trigger without the user agreeing to what it runs and where.
+
+To move a workspace off legacy triggers, invoke `qawolf-trigger-migration` or read `skills/qawolf-trigger-migration/SKILL.md`. It reads every legacy trigger, presents one complete plan as a dry run, creates every replacement only after the user approves the whole plan, and pauses the legacy triggers afterwards; nothing is deleted.
 
 Resolve the intended environment before creating or finding runs. Do not blindly retry a timed-out write. Browser runners bill while they exist; terminate them when work ends. Never expose credentials in messages, repository files, or public issues.

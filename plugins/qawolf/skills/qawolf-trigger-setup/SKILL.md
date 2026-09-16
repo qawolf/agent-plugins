@@ -1,13 +1,13 @@
 ---
 name: qawolf-trigger-setup
-description: Use when the user wants QA Wolf flows to run automatically. Covers "set up triggers", "run my tests on every deploy", "run these flows nightly", "automate my test runs", and connecting a CI pipeline or deployments to QA Wolf. Onboarding invokes it once a first flow is active, and a user with existing flows invokes it directly; the decision procedure is the same either way. Recommends a deployment trigger first, through GitHub or GitLab Deployments or a deployment.reportStatus call from CI, and finishes with a scheduled trigger when the pipeline will not change. Migrating a workspace off legacy triggers is a different task and does not belong here.
+description: Use when the user wants QA Wolf flows to run automatically. Covers "set up triggers", "run my tests on every deploy", "run these flows nightly", "automate my test runs", and connecting a CI pipeline or deployments to QA Wolf. Onboarding invokes it once a first flow is active, and a user with existing flows invokes it directly; the decision procedure is the same either way. Recommends a deployment trigger first, through GitHub or GitLab Deployments or a deployment.reportStatus call from CI, and finishes with a scheduled trigger when the pipeline will not change. Migrating a workspace off legacy triggers belongs to qawolf-trigger-migration, not here.
 ---
 
 # Trigger Setup
 
 Set up the trigger that makes a workspace's flows run without anyone asking. A trigger fires on a deployment or on a schedule; this skill chooses which, agrees on what it will run, creates it through the trigger tools, and verifies it where verification is possible.
 
-This skill configures new automation only. A workspace moving off legacy triggers needs a migration, which this skill does not cover; say so and stop instead of improvising one.
+This skill configures new automation only. A workspace moving off legacy triggers goes to [Trigger Migration](../qawolf-trigger-migration/SKILL.md) instead, because its first created trigger cuts the workspace over; do not improvise a migration here.
 
 ## Check the connection and scope
 
@@ -16,6 +16,8 @@ Read the shared [connection checks](../qawolf/SKILL.md#start-here) and [data and
 When Onboarding invoked this skill, reuse everything it passed: the workspace, the environment, the flow that just became active, and what it learned about the application. Do not re-ask any of it. On a direct request, settle the workspace and environment the way the shared checks describe.
 
 Call `trigger_find` before proposing anything. A trigger that already covers the request means the work is adjusting or resuming it, not creating a duplicate; report what exists and ask what the user wants changed.
+
+When Onboarding handed off, the workspace is new and nothing legacy can exist. On a direct request it can, and the first trigger created here silences every unpaused legacy deployment trigger at once — so read them the way [Trigger Migration](../qawolf-trigger-migration/SKILL.md#read-everything-first) does before the first `trigger_create`, and hand off to that skill when any unpaused one exists. A user asking to "run my tests on every deploy" cannot be assumed to know their workspace still runs legacy triggers.
 
 ## Read the pipeline before asking
 
