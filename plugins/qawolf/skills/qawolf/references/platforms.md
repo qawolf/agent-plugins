@@ -150,7 +150,7 @@ hermes plugins install qawolf/agent-plugins/plugins/qawolf --no-enable
 hermes plugins enable qawolf
 ```
 
-Review the adapter before enabling it. It registers all six QA Wolf skills, not MCP. Merge the server into the active profile's `~/.hermes/config.yaml`:
+Review the adapter before enabling it. It registers all seven QA Wolf skills, not MCP. Merge the server into the active profile's `~/.hermes/config.yaml`:
 
 ```yaml
 mcp_servers:
@@ -173,7 +173,7 @@ Sources: [native plugins and skill registration](https://github.com/NousResearch
 
 ## OpenCode
 
-No executable plugin is needed. Copy all six sibling skill directories to project `.agents/skills/` or user `~/.config/opencode/skills/`. Merge into `opencode.json` or user `~/.config/opencode/opencode.json`:
+No executable plugin is needed. Copy all seven sibling skill directories to project `.agents/skills/` or user `~/.config/opencode/skills/`. Merge into `opencode.json` or user `~/.config/opencode/opencode.json`:
 
 ```json
 {
@@ -204,11 +204,11 @@ Sources: [Pi packages](https://github.com/badlogic/pi-mono/blob/main/packages/co
 
 ## Portable skill files
 
-Public `skills/` contains the same six QA Wolf skill directories as `plugins/qawolf/skills/`: `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, and `qawolf-trigger-migration`. Install them together as siblings, including the shared skill's `mcp.json` and references. Relative links connect the skills. Review existing files before updating; never replace an application's instructions or configuration wholesale.
+Public `skills/` contains the same seven QA Wolf skill directories as `plugins/qawolf/skills/`: `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, `qawolf-trigger-diagnostics`, and `qawolf-trigger-migration`. Install them together as siblings, including the shared skill's `mcp.json` and references. Relative links connect the skills. Review existing files before updating; never replace an application's instructions or configuration wholesale.
 
 ## Portable clients with MCP
 
-Install all six skills together, then configure MCP. The table shows the shared `qawolf` location; place `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup` and `qawolf-trigger-migration` beside it. Clients supported by the [Agent Skills CLI](https://github.com/vercel-labs/skills) can select all six QA Wolf skills in its picker:
+Install all seven skills together, then configure MCP. The table shows the shared `qawolf` location; place `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, `qawolf-trigger-diagnostics` and `qawolf-trigger-migration` beside it. Clients supported by the [Agent Skills CLI](https://github.com/vercel-labs/skills) can select all seven QA Wolf skills in its picker:
 
 Review the installer first and check its destination, especially Cline's `.cline/skills/qawolf`. CodeWhale and Swival also accept `.agents/skills/qawolf`.
 
@@ -222,12 +222,12 @@ For a manual copy, set `QAWOLF_PLUGIN_ROOT` to a reviewed checkout's `plugins/qa
 (
   src="$QAWOLF_PLUGIN_ROOT/skills"
   dst=".agents/skills"
-  for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-migration; do
+  for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-diagnostics qawolf-trigger-migration; do
     test -f "$src/$skill/SKILL.md" || { printf 'Missing skill: %s\n' "$skill" >&2; exit 1; }
     test ! -e "$dst/$skill" && test ! -L "$dst/$skill" || { printf 'Refusing to replace %s\n' "$dst/$skill" >&2; exit 1; }
   done
   mkdir -p "$dst" || exit 1
-  for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-migration; do
+  for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-diagnostics qawolf-trigger-migration; do
     cp -R "$src/$skill" "$dst/$skill" || exit 1
   done
 )
@@ -368,7 +368,7 @@ Sources: [skills](https://zed.dev/docs/ai/skills), [MCP](https://zed.dev/docs/ai
 
 ### CodeWhale
 
-Install the six sibling skills under `.codewhale/skills/`, then run:
+Install the seven sibling skills under `.codewhale/skills/`, then run:
 
 ```bash
 codewhale mcp add qawolf --url https://app.qawolf.com/api/mcp
@@ -383,7 +383,7 @@ Sources: [skills](https://github.com/Hmbown/Codewhale/blob/main/docs/SKILLS.md),
 
 ### Swival
 
-Install the six sibling skills under `.swival/skills/` or `.agents/skills/`. Configure `mcp_servers.qawolf` with `type = "http"` and `url`.
+Install the seven sibling skills under `.swival/skills/` or `.agents/skills/`. Configure `mcp_servers.qawolf` with `type = "http"` and `url`.
 
 Swival's OAuth support is unverified. If it never prompts, add `headers` with a literal bearer value. Header environment expansion is unverified. Store that value in user `~/.config/swival/config.toml` or a mode-0600 JSON file selected with `--mcp-config`, never project `swival.toml`.
 
@@ -394,7 +394,7 @@ Sources: [skills](https://github.com/Swival/swival/blob/master/docs.md/skills.md
 From a reviewed checkout:
 
 ```bash
-for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-migration; do
+for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-diagnostics qawolf-trigger-migration; do
   openclaw skills install "$QAWOLF_PLUGIN_ROOT/skills/$skill" --as "$skill" || break
 done
 openclaw mcp set qawolf \
@@ -435,6 +435,7 @@ aider \
   --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-flow-maintenance/SKILL.md" \
   --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-onboarding/SKILL.md" \
   --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-trigger-setup/SKILL.md" \
+  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-trigger-diagnostics/SKILL.md" \
   --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-trigger-migration/SKILL.md" \
   --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf/references/platforms.md"
 ```
@@ -443,4 +444,4 @@ Sources: [Junie guidance](https://github.com/JetBrains/junie-guidelines#how-to-u
 
 ## Updates and removal
 
-Use the original installer to update. For manual copies, review and replace only `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, and `qawolf-trigger-migration`. To uninstall, remove those skill directories, the QA Wolf instruction section, and its MCP entry. Preserve other skills, settings, and credentials.
+Use the original installer to update. For manual copies, review and replace only `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, `qawolf-trigger-diagnostics`, and `qawolf-trigger-migration`. To uninstall, remove those skill directories, the QA Wolf instruction section, and its MCP entry. Preserve other skills, settings, and credentials.

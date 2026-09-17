@@ -1,6 +1,6 @@
 ---
 name: qawolf
-description: "Shared QA Wolf connection, safety, and tool guidance for running flows, investigating failures, managing environments and issues, and driving a cloud browser. Read an app.qawolf.com link instead of opening it. Route on the verb the user chose, not on whether the flow exists: complete, finish, create, add, write or cover goes to qawolf-flow-outline, fix, repair, debug or investigate goes to qawolf-flow-maintenance, onboarding or first-flow selection goes to qawolf-onboarding, setting up triggers or automatic runs goes to qawolf-trigger-setup, and moving off legacy triggers goes to qawolf-trigger-migration."
+description: "Shared QA Wolf connection, safety, and tool guidance for running flows, investigating failures, managing environments and issues, and driving a cloud browser. Read an app.qawolf.com link instead of opening it. Route on the verb the user chose, not on whether the flow exists: complete, finish, create, add, write or cover goes to qawolf-flow-outline, fix, repair, debug or investigate goes to qawolf-flow-maintenance, onboarding or first-flow selection goes to qawolf-onboarding, setting up triggers or automatic runs goes to qawolf-trigger-setup, a trigger that did not run goes to qawolf-trigger-diagnostics, and moving off legacy triggers goes to qawolf-trigger-migration."
 ---
 
 <!-- Generated from skill/qawolf.template.md and the public API contracts with nx gen agent-plugins. -->
@@ -22,6 +22,8 @@ Claude and ChatGPT show only the run of text at the end of your turn. Anything y
 
 So a question ends your turn, whether you ask in text or through an ask-user tool. Ask, then stop: do not call another tool afterwards, and never read silence as an answer. Offer three or four concrete options and let the user name something else instead, so answering costs them a word, not a paragraph. Never ask them to paste an id.
 
+Onboarding's first question is different: launch the exploration runner in the same tool block as it, and leave it running until the user answers.
+
 A link the user is meant to open is visible only in that same trailing text, but it does not end your turn: send it as soon as you have it and carry on working. Send it again in the last message of the turn when its page is still open by then. A QA Wolf session stays open, so repeat that one; a runner's watch page closes when you terminate the runner, so close that turn by reporting what you found.
 
 ## Reading a QA Wolf link
@@ -41,25 +43,26 @@ This restricts QA Wolf's own app and nothing else. Opening the customer's site o
 
 ## Choose the workflow
 
-A QA Wolf request is one of five things. The verb the user chose decides the route, so read that first. Whether the flow already exists does not decide it, and neither does a pasted link.
+A QA Wolf request is one of six things. The verb the user chose decides the route, so read that first. Whether the flow already exists does not decide it, and neither does a pasted link.
 
-| The user says                                                                     | Route to                                                  |
-| --------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| complete, finish, create, add, write, build, cover, request coverage              | [Flow Outline](../qawolf-flow-outline/SKILL.md)           |
-| fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, "it is failing" | [Flow Maintenance](../qawolf-flow-maintenance/SKILL.md)   |
-| onboard, get started, pick a first flow                                           | [Onboarding](../qawolf-onboarding/SKILL.md)               |
-| set up triggers, run on deploy, run on a schedule, automate the runs              | [Trigger Setup](../qawolf-trigger-setup/SKILL.md)         |
-| migrate my triggers, move off legacy triggers, upgrade to global triggers         | [Trigger Migration](../qawolf-trigger-migration/SKILL.md) |
+| The user says                                                                                                                                                    | Route to                                                      |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| complete, finish, create, add, write, build, cover, request coverage                                                                                             | [Flow Outline](../qawolf-flow-outline/SKILL.md)               |
+| fix, repair, debug, investigate, diagnose, troubleshoot, unbreak, "it is failing" — the problem is inside a flow or a run: this flow is failing, this run failed | [Flow Maintenance](../qawolf-flow-maintenance/SKILL.md)       |
+| onboard, get started, pick a first flow                                                                                                                          | [Onboarding](../qawolf-onboarding/SKILL.md)                   |
+| set up triggers, run on deploy, run on a schedule, automate the runs                                                                                             | [Trigger Setup](../qawolf-trigger-setup/SKILL.md)             |
+| the same verbs about which automation fired and what it selected: why didn't my trigger run, my deploy started no tests, why did this deploy run the wrong flows | [Trigger Diagnostics](../qawolf-trigger-diagnostics/SKILL.md) |
+| migrate my triggers, move off legacy triggers, upgrade to global triggers                                                                                        | [Trigger Migration](../qawolf-trigger-migration/SKILL.md)     |
 
-The question behind the table is whether something is broken. "Complete this flow" names a draft that exists and is unfinished, where nothing has failed, so it is creation and goes to Flow Outline. "Fix this flow" names something that ran and went wrong, so it goes to Flow Maintenance. A link to a flow says nothing either way, since both skills work from one.
+The question behind the table is whether something is broken. "Complete this flow" names a draft that exists and is unfinished, where nothing has failed, so it is creation and goes to Flow Outline. "Fix this flow" names something that ran and went wrong, so it goes to Flow Maintenance. A run that failed goes to Flow Maintenance too, since the problem is inside the run. A question about which trigger fired, or which flows it selected, goes to Trigger Diagnostics whether or not a run happened. A link to a flow says nothing either way, since both skills work from one.
 
 Onboarding selects a candidate, invokes Flow Outline, and hands off to Trigger Setup once the first flow is active; if the user already named the flow, go straight to Flow Outline. When the verb is genuinely ambiguous, such as "update this flow", ask the user which they mean before routing.
 
-Flow Outline, Flow Maintenance and Onboarding all hand the work to QA Wolf with `agent_send`, then carry on until the flow is active: published as a draft, run, and activated once it passes. Trigger Setup ends in `trigger_create`, Trigger Migration in the pause that follows it, and Onboarding hands off to Trigger Setup once that first flow is active. The skills differ in what they establish first, so route once and let the skill you picked see it through.
+Flow Outline, Flow Maintenance and Onboarding all hand the work to QA Wolf with `agent_send`, then carry on until the flow is active: published as a draft, run, and activated once it passes. Trigger Setup ends in `trigger_create`, Trigger Migration in the pause that follows it, Trigger Diagnostics in an explanation without any write, and Onboarding hands off to Trigger Setup once that first flow is active. The skills differ in what they establish first, so route once and let the skill you picked see it through.
 
 When the request points at a file, such as a test plan or a spreadsheet of journeys, upload it first with [Share a file](#share-a-file) and carry the returned path into the workflow, instead of pasting its rows or asking the user to retype them.
 
-Use the client's skill tool and registered names when available; otherwise read and follow the linked skill. Do not restart routing when another QA Wolf skill is already active. Install all six sibling skills so the shared references remain available. Keep source code local.
+Use the client's skill tool and registered names when available; otherwise read and follow the linked skill. Do not restart routing when another QA Wolf skill is already active. Install all seven sibling skills so the shared references remain available. Keep source code local.
 
 ## Sign in
 
@@ -184,11 +187,11 @@ Both `run_create` and `run_find` require `environmentId`. After a timeout, check
 
 ## Drive a browser
 
-A browser tool acts on the workspace bound to the connection, or on the one you name with `workspaceId` when the connection reaches several. That field appears on the runner tools exactly when it is needed, so pass the workspace you chose and expect the launch to succeed. Launch with a unique `id` and `runnerName: "playwright"`. Use `runner_performAction` to start the desktop, then inspect `runner_takeScreenshot` before further actions. For `runner_runFlow`, send `env` or `environmentId`, not both.
+A browser tool acts on the workspace bound to the connection, or on the one you name with `workspaceId` when the connection reaches several. That field appears on the runner tools exactly when it is needed, so pass the workspace you chose and expect the launch to succeed. Launch with a unique `id` and `runnerName: "playwright"`. The first `runner_performAction` starts the desktop; take a `runner_takeScreenshot` after it to see what came up. Send `withScreenshot: true` with every action after that instead: the answer carries a frame taken once the screen caught up, so a separate screenshot is a second round trip for the same picture. Call `runner_takeScreenshot` on its own only to look at the screen without acting on it. For `runner_runFlow`, send `env` or `environmentId`, not both.
 
 `runner_launch` answers a `url`: the QA Wolf page where the user watches this runner live and can take over its mouse and keyboard. After a successful launch, make your next action a normal user-visible assistant message containing that exact url, before the first `runner_performAction`, and send it again whenever you pause for the user while the runner is still alive. Tool output and thinking do not count as sharing it. A link sent after termination points at a page that is already gone, so the closing message names what you found instead of repeating a dead link. See [how the user sees your messages](#how-the-user-sees-your-messages). Every other `app.qawolf.com` link is data you parse; this one is a page for the user to open, and you still never open it yourself. See [reading a QA Wolf link](#reading-a-qa-wolf-link). When `alreadyRunning` is true the url is the same page, so share it again instead of assuming the user still has it. `runner_list` answers the same url for every runner on the team and `runner_get` answers it for one, so a link you no longer have is recoverable from the runner id.
 
-Runners bill until terminated. Call `runner_terminate` when done, before ending your turn. Terminating ends the live view, so say so when you report what you found.
+Runners bill until terminated. Call `runner_terminate` when done, before ending your turn. The runner launched with onboarding's first question stays up until the user answers. Terminating ends the live view, so say so when you report what you found.
 
 ## Handle errors
 

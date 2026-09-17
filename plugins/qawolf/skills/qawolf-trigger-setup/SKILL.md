@@ -82,7 +82,7 @@ Then close the loop on the events:
 - Pipeline needs to emit provider events: ask whether they deploy previews as well as long-lived environments, because the answer changes both the workflow to recommend and the triggers to create. Then walk the user through [emitting deployment events](references/deployment-events.md). In particular, the deployment's environment name must match the QA Wolf environment they intend, and previews must be isolated per pull request. Say that only a real deploy verifies it end to end.
 - Pipeline reports directly: give the user the `deployment.reportStatus` call to add to CI, reading the live schema for its exact fields. A deployment's first `success` report is what evaluates triggers. With the user's agreement you can send one test report yourself to prove the wiring before their CI change lands; it fires the trigger for real, so say that it starts billed runs.
 
-When a deploy happened and no run appeared, the question is why the trigger did not fire: did a deployment reach QA Wolf at all, and which condition failed. Answer those two in order before changing anything about the trigger.
+When a deploy happened and no run appeared, hand the question to [Trigger Diagnostics](../qawolf-trigger-diagnostics/SKILL.md) instead of rebuilding the investigation here: it reads the deployments QA Wolf received and each trigger's recorded verdict, and answers whether a deployment arrived at all and which condition failed before anything about the trigger changes.
 
 A deployment trigger that has never seen a deployment is configured, not verified. Report which of the two it is; do not claim verification a deploy has not provided.
 

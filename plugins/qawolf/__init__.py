@@ -7,6 +7,7 @@ def register(ctx):
         "qawolf-flow-maintenance",
         "qawolf-flow-outline",
         "qawolf-onboarding",
+        "qawolf-trigger-diagnostics",
         "qawolf-trigger-migration",
         "qawolf-trigger-setup",
     ):

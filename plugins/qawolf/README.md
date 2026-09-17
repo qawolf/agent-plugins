@@ -54,7 +54,7 @@ Then run `/mcp auth qawolf` to sign in. Ask the agent to call `whoami` to confir
 
 ## Other coding agents
 
-The public repository also exposes the six sibling skills under `skills/` and a Pi package entrypoint. Install `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, and `qawolf-trigger-migration` together. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
+The public repository also exposes the seven sibling skills under `skills/` and a Pi package entrypoint. Install `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, `qawolf-trigger-diagnostics`, and `qawolf-trigger-migration` together. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
 
 ## Skills
 
@@ -62,10 +62,11 @@ The public repository also exposes the six sibling skills under `skills/` and a 
 - **Flow Maintenance** (`qawolf-flow-maintenance`) repairs a flow that already exists and has started failing. It reads the recorded run and diagnosis, then hands the fix to `agent_send` without launching a runner.
 - **Onboarding** (`qawolf-onboarding`) chooses the best first flow and invokes Flow Outline, then hands off to Trigger Setup once the flow is active. A request that already names the new flow goes directly to Flow Outline.
 - **Trigger Setup** (`qawolf-trigger-setup`) makes flows run automatically. It reads the repository's CI, recommends a deployment trigger through GitHub or GitLab Deployments or a `deployment.reportStatus` call, and finishes with a scheduled trigger when the pipeline will not change.
+- **Trigger Diagnostics** (`qawolf-trigger-diagnostics`) answers why a trigger did not run. It reads the deployments QA Wolf received and each trigger's recorded verdict, explains the outcome in the user's terms, and changes nothing; the fix it proposes is made elsewhere.
 - **Trigger Migration** (`qawolf-trigger-migration`) moves a workspace off legacy triggers. It reads every legacy trigger, presents one complete plan as a dry run, creates every replacement only after approval of the whole plan, and pauses the legacy triggers afterwards without deleting anything.
 - **QA Wolf** (`qawolf`) supplies shared connection and safety guidance, plus existing-test operations.
 
-Your new-flow or onboarding request covers billed browser use and routine staging exploration without a separate permission prompt. Your coding agent displays the full AAA before asking for approval, then shares the session URL before monitoring. It continues silently when status is unchanged and verifies publication and the approved draft or active readiness before reporting completion.
+Your new-flow or onboarding request covers billed browser use and routine staging exploration without a separate permission prompt. Your coding agent displays the full AAA before asking for approval, then shares the session URL before monitoring. It continues silently when status is unchanged and verifies publication and readiness before reporting completion. An onboarding first flow becomes active once its run passes, with no draft-or-active question; a flow you ask for by name still lets you choose. Activation makes a flow eligible for triggered suites, so it runs on its own only once Trigger Setup or an existing trigger covers it. Move any flow back to draft in the app.
 
 ## Try it
 
