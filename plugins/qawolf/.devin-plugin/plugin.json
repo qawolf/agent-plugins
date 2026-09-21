@@ -1,6 +1,5 @@
 {
   "name": "qawolf",
-  "version": "0.1.13",
-  "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser.",
-  "skills": "./skills/"
+  "version": "0.1.14",
+  "description": "Ask QA Wolf for test coverage, run flows, read results, and drive a cloud browser."
 }

@@ -1,6 +1,6 @@
 # QA Wolf plugin
 
-Use QA Wolf from your coding agent to request test coverage, run flows, inspect results, and drive a cloud browser. See [platform setup](skills/qawolf/references/platforms.md) for native plugins, portable skills, MCP configuration, and guidance-only limitations.
+Use QA Wolf from your coding agent to request test coverage, run flows, inspect results, and drive a cloud browser. See [platform setup](PLATFORMS.md) for native plugins, MCP configuration, and guidance-only limitations.
 
 Install it from the [QA Wolf plugin repository](https://github.com/qawolf/agent-plugins) through your client's plugin marketplace. The plugin signs in with OAuth.
 
@@ -10,7 +10,7 @@ QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAu
 
 No API key is needed. Do not add an `Authorization` header to the plugin's MCP entry; in Claude Code and Codex a configured header switches OAuth off and the connection fails with HTTP 401.
 
-Where a browser sign-in cannot happen, such as CI or a container, use the API key fallback described in [platform setup](skills/qawolf/references/platforms.md). Keep any key out of shell history, source control, chats, issues, and screenshots.
+Where a browser sign-in cannot happen, such as CI or a container, use the API key fallback described in [platform setup](PLATFORMS.md). Keep any key out of shell history, source control, chats, issues, and screenshots.
 
 OAuth reaches every workspace you are a member of, across all of your organizations. `whoami` lists them with the organization that owns each one. When there is exactly one the connection binds to it; otherwise pass `workspaceId`, and a browser tool binds to the workspace you name. A team API key is always bound to its team.
 
@@ -54,13 +54,15 @@ Then run `/mcp auth qawolf` to sign in. Ask the agent to call `whoami` to confir
 
 ## Other coding agents
 
-The public repository also exposes the seven sibling skills under `skills/` and a Pi package entrypoint. Install `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, `qawolf-trigger-diagnostics`, and `qawolf-trigger-migration` together. Use the [platform guide](skills/qawolf/references/platforms.md) for your client. A skill or instruction file does not imply a working MCP connection; follow the matching setup and verify `whoami`.
+Any client with MCP support connects to `https://app.qawolf.com/api/mcp`. The server supplies the skills, so no skill files are installed. Use the [platform guide](PLATFORMS.md) for your client, then verify the connection with `whoami`.
 
 ## Skills
 
-- **Flow Outline** (`qawolf-flow-outline`) handles every request to create a flow, including finishing a draft and covering a pull request. Your coding agent explores through runner computer use, finds context independently, and uses the ask-user tool for gaps. It presents Arrange, Act, Assert outlines for approval, sends approved outlines through `agent_send`, and monitors creation.
+The MCP server serves the skills through two tools. `skill_list` names them with the description that says when to use one. `skill_get` reads the current version of one skill, so a skill change reaches every session without a plugin update.
+
+- **Flow Outline** (`qawolf-flow-outline`) handles every request to create a flow, including finishing a draft and covering a pull request. Your coding agent explores through runner computer use, finds context independently, and uses the ask-user tool for gaps. It presents Arrange, Act, Assert outlines for approval both as a message and through `propose_outline`, which draws them in a card in the clients that support one, sends approved outlines through `agent_send`, and monitors creation.
 - **Flow Maintenance** (`qawolf-flow-maintenance`) repairs a flow that already exists and has started failing. It reads the recorded run and diagnosis, then hands the fix to `agent_send` without launching a runner.
-- **Onboarding** (`qawolf-onboarding`) chooses the best first flow and invokes Flow Outline, then hands off to Trigger Setup once the flow is active. A request that already names the new flow goes directly to Flow Outline.
+- **Onboarding** (`qawolf-onboarding`) chooses the best first flow and reads Flow Outline, then hands off to Trigger Setup once the flow is active. A request that already names the new flow goes directly to Flow Outline.
 - **Trigger Setup** (`qawolf-trigger-setup`) makes flows run automatically. It reads the repository's CI, recommends a deployment trigger through GitHub or GitLab Deployments or a `deployment.reportStatus` call, and finishes with a scheduled trigger when the pipeline will not change.
 - **Trigger Diagnostics** (`qawolf-trigger-diagnostics`) answers why a trigger did not run. It reads the deployments QA Wolf received and each trigger's recorded verdict, explains the outcome in the user's terms, and changes nothing; the fix it proposes is made elsewhere.
 - **Trigger Migration** (`qawolf-trigger-migration`) moves a workspace off legacy triggers. It reads every legacy trigger, presents one complete plan as a dry run, creates every replacement only after approval of the whole plan, and pauses the legacy triggers afterwards without deleting anything.
@@ -85,7 +87,7 @@ A cloud browser bills while its runner exists. The skill instructs the agent to 
 - Browser-tool authorization error: the connection reaches several workspaces, so it is not bound to one. Call `whoami`, then pass `workspaceId` for the workspace you want, or use a team API key already bound to it.
 - Missing agent tools: coverage requests require both `agent_send` and `agent_get`. Contact QA Wolf support if either is unavailable.
 
-Use the [platform guide](skills/qawolf/references/platforms.md) for client-specific connection settings. Never send a QA Wolf API key or OAuth token to an untrusted endpoint.
+Use the [platform guide](PLATFORMS.md) for client-specific connection settings. Never send a QA Wolf API key or OAuth token to an untrusted endpoint.
 
 Report plugin problems through [GitHub issues](https://github.com/qawolf/agent-plugins/issues). Do not include API keys, passwords, or customer test data in public reports.
 

@@ -1,6 +1,6 @@
 # Platform setup
 
-Skills supply instructions; MCP supplies tools. Some clients need separate setup for each. These configurations follow client documentation, not authenticated tests of every client.
+The QA Wolf MCP server supplies the tools and the skills. `skill_list` names the skills and `skill_get` reads one, so a client needs only the MCP connection. These configurations follow client documentation, not authenticated tests of every client.
 
 ## Authentication and verification
 
@@ -44,7 +44,7 @@ codex plugin marketplace add qawolf/agent-plugins
 codex plugin add qawolf@qawolf
 ```
 
-Both plugins install the skill and MCP config, and both sign in with OAuth. Claude Code asks on connection, so start a fresh session and approve the sign-in. Codex offers the sign-in inside the conversation the first time it calls a QA Wolf tool; Codex desktop uses the same installation, and needs a restart after it.
+Both plugins install the MCP config, and both sign in with OAuth. Claude Code asks on connection: approve the sign-in it raises, or open `/mcp`, select QA Wolf, and choose Authenticate. Codex offers the sign-in inside the conversation the first time it calls a QA Wolf tool; Codex desktop uses the same installation, and needs a restart after it.
 
 When Claude Code needs sign-in, direct the user to its native `/mcp` controls rather than calling the conversational `authenticate` tool: "First, connect your account. Open `/mcp`, select QA Wolf, and choose Authenticate. Follow the browser sign-in, then return here."
 
@@ -60,7 +60,7 @@ ChatGPT does not take MCP servers from an installed plugin, so add QA Wolf as a 
 
 Then ask QA Wolf for something in a new chat. On a Business or Enterprise workspace an administrator can publish the same URL once for every member, which replaces the setup above.
 
-Installing the plugin still gives Codex the tools and gives both clients this skill. Its starter prompt, "Verify my QA Wolf connection and workspace", calls `whoami` and reports the workspaces you can act on.
+Installing the plugin still gives Codex the tools. Its starter prompt, "Verify my QA Wolf connection and workspace", calls `whoami` and reports the workspaces you can act on.
 
 ## Claude Desktop
 
@@ -73,7 +73,7 @@ copilot plugin marketplace add qawolf/agent-plugins
 copilot plugin install qawolf@qawolf
 ```
 
-The plugin loads the skill and MCP config, then signs in with OAuth. Use `/mcp auth` in a session to authenticate or switch accounts.
+The plugin loads the MCP config, then signs in with OAuth. Use `/mcp auth` in a session to authenticate or switch accounts.
 
 Requires Copilot CLI 1.0.64 or later. Before that release, MCP servers declared by a plugin never raised an OAuth prompt, so the connection fails silently. On an older build, configure the server by hand in `~/.copilot/mcp-config.json`.
 
@@ -89,7 +89,7 @@ gemini extensions install https://github.com/qawolf/agent-plugins
 
 Review the extension. Gemini signs in on the first connection; `/mcp auth qawolf` starts it by hand.
 
-Git installation uses the public root manifest and skills. Local installs can use `plugins/qawolf`. The private platform repository is not installable.
+Git installation uses the public root manifest. Local installs can use `plugins/qawolf`. The private platform repository is not installable.
 
 Sources: [extensions and settings](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/reference.md), [release-root requirements](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/releasing.md).
 
@@ -118,7 +118,7 @@ Sources: [plugins](https://github.com/xai-org/grok-build/blob/main/crates/codege
 
 ## Devin CLI
 
-Devin plugins are in closed beta. This manifest installs the skill only.
+Devin plugins are in closed beta. The manifest carries plugin metadata only, so add the MCP server by hand.
 
 ```bash
 devin plugins install 'qawolf/agent-plugins#plugins/qawolf'
@@ -137,7 +137,7 @@ Install from a reviewed public checkout:
 qoder plugins install "$QAWOLF_PLUGIN_ROOT"
 ```
 
-Set `QAWOLF_PLUGIN_ROOT` to the absolute `plugins/qawolf` path. This installs the skill only; remote marketplace discovery is unverified.
+Set `QAWOLF_PLUGIN_ROOT` to the absolute `plugins/qawolf` path. The manifest carries plugin metadata only; remote marketplace discovery is unverified.
 
 In protected user `~/.qoder/settings.json`, add `mcpServers.qawolf` with `type: "http"` and the QA Wolf `url`, and no `Authorization` header, so Qoder can sign in with OAuth. Qoder's OAuth support is unverified. If it never prompts, add a literal bearer value in `headers.Authorization`; header environment expansion is unverified.
 
@@ -145,12 +145,7 @@ Sources: [plugins](https://docs.qoder.com/cli/plugins.md), [manifest reference](
 
 ## Hermes Agent
 
-```bash
-hermes plugins install qawolf/agent-plugins/plugins/qawolf --no-enable
-hermes plugins enable qawolf
-```
-
-Review the adapter before enabling it. It registers all seven QA Wolf skills, not MCP. Merge the server into the active profile's `~/.hermes/config.yaml`:
+No plugin is needed. Merge the server into the active profile's `~/.hermes/config.yaml`:
 
 ```yaml
 mcp_servers:
@@ -167,13 +162,13 @@ mcp_servers:
       Authorization: Bearer ${QAWOLF_API_KEY}
 ```
 
-Start a new session and call `skill_view("qawolf:qawolf")` for shared guidance, `skill_view("qawolf:qawolf-flow-outline")` for a new flow, or `skill_view("qawolf:qawolf-onboarding")` to choose a first flow. Plugin skills are absent from the general skill index. Verify MCP tools separately.
+Reload MCP or complete Hermes' own sign-in, then call `whoami` to verify the tools.
 
-Sources: [native plugins and skill registration](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/developer-guide/plugins/index.md), [MCP secrets](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/reference/mcp-config-reference.md).
+Sources: [MCP secrets](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/reference/mcp-config-reference.md).
 
 ## OpenCode
 
-No executable plugin is needed. Copy all seven sibling skill directories to project `.agents/skills/` or user `~/.config/opencode/skills/`. Merge into `opencode.json` or user `~/.config/opencode/opencode.json`:
+No plugin is needed. Merge into `opencode.json` or user `~/.config/opencode/opencode.json`:
 
 ```json
 {
@@ -192,59 +187,24 @@ Sources: [skills](https://opencode.ai/docs/skills/), [remote MCP](https://openco
 
 ## Pi
 
-```bash
-pi install git:github.com/qawolf/agent-plugins
-```
-
-Restart or `/reload`, then use `/skill:qawolf-flow-outline` for a new flow, `/skill:qawolf-onboarding` to choose a first flow, or `/skill:qawolf` for other test operations. This installs instructions only, with no extension or hooks.
-
 Pi has [no built-in MCP support](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent#philosophy). Install a reviewed MCP extension, configure the endpoint in its format, and verify QA Wolf tools before use. Prefer an extension that handles MCP OAuth. If none is available, supply a team API key as a bearer credential.
-
-Sources: [Pi packages](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md), [Pi skills](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/skills.md).
-
-## Portable skill files
-
-Public `skills/` contains the same seven QA Wolf skill directories as `plugins/qawolf/skills/`: `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, `qawolf-trigger-diagnostics`, and `qawolf-trigger-migration`. Install them together as siblings, including the shared skill's `mcp.json` and references. Relative links connect the skills. Review existing files before updating; never replace an application's instructions or configuration wholesale.
 
 ## Portable clients with MCP
 
-Install all seven skills together, then configure MCP. The table shows the shared `qawolf` location; place `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, `qawolf-trigger-diagnostics` and `qawolf-trigger-migration` beside it. Clients supported by the [Agent Skills CLI](https://github.com/vercel-labs/skills) can select all seven QA Wolf skills in its picker:
+Configure the QA Wolf MCP server in the client. The server supplies the skills, so no skill files are installed.
 
-Review the installer first and check its destination, especially Cline's `.cline/skills/qawolf`. CodeWhale and Swival also accept `.agents/skills/qawolf`.
-
-```bash
-npx skills add qawolf/agent-plugins
-```
-
-For a manual copy, set `QAWOLF_PLUGIN_ROOT` to a reviewed checkout's `plugins/qawolf` directory. Run from the application project and choose the client's skills directory below. Check every destination before copying; this refuses to replace an existing skill:
-
-```bash
-(
-  src="$QAWOLF_PLUGIN_ROOT/skills"
-  dst=".agents/skills"
-  for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-diagnostics qawolf-trigger-migration; do
-    test -f "$src/$skill/SKILL.md" || { printf 'Missing skill: %s\n' "$skill" >&2; exit 1; }
-    test ! -e "$dst/$skill" && test ! -L "$dst/$skill" || { printf 'Refusing to replace %s\n' "$dst/$skill" >&2; exit 1; }
-  done
-  mkdir -p "$dst" || exit 1
-  for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-diagnostics qawolf-trigger-migration; do
-    cp -R "$src/$skill" "$dst/$skill" || exit 1
-  done
-)
-```
-
-| Client                    | Shared skill location                                | MCP setup                                             |
-| ------------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
-| Cursor                    | `.agents/skills/qawolf`                              | OAuth sign-in from Tools and Integrations             |
-| Windsurf                  | `.agents/skills/qawolf` or `.windsurf/skills/qawolf` | API key fallback; OAuth unverified                    |
-| Cline                     | `.cline/skills/qawolf`                               | API key fallback; OAuth unverified for this transport |
-| GitHub Copilot in VS Code | `.github/skills/qawolf` or `.agents/skills/qawolf`   | OAuth sign-in; no secure input needed                 |
-| Amp                       | `.agents/skills/qawolf`                              | Bundled skill-local config; OAuth unverified          |
-| Kiro                      | `.kiro/skills/qawolf`                                | OAuth sign-in with `/mcp auth`                        |
-| Zed                       | `.agents/skills/qawolf`                              | OAuth sign-in when no header is set                   |
-| CodeWhale                 | `.codewhale/skills/qawolf`                           | API key fallback; OAuth unverified                    |
-| Swival                    | `.swival/skills/qawolf`                              | API key fallback; OAuth unverified                    |
-| OpenClaw                  | Workspace `skills/qawolf`                            | Local skill installer plus OAuth MCP config           |
+| Client                    | MCP setup                                             |
+| ------------------------- | ----------------------------------------------------- |
+| Cursor                    | OAuth sign-in from Tools and Integrations             |
+| Windsurf                  | API key fallback; OAuth unverified                    |
+| Cline                     | API key fallback; OAuth unverified for this transport |
+| GitHub Copilot in VS Code | OAuth sign-in; no secure input needed                 |
+| Amp                       | OAuth sign-in from `amp.mcpServers`; unverified       |
+| Kiro                      | OAuth sign-in with `/mcp auth`                        |
+| Zed                       | OAuth sign-in when no header is set                   |
+| CodeWhale                 | API key fallback; OAuth unverified                    |
+| Swival                    | API key fallback; OAuth unverified                    |
+| OpenClaw                  | OAuth MCP config                                      |
 
 ### Cursor
 
@@ -330,15 +290,13 @@ Remote Agent Host cannot run an interactive sign-in; configure its credentials s
 
 JetBrains uses `servers.qawolf.requestInit.headers`. Use Copilot Chat > Configure your MCP server and protected user settings. Visual Studio has its own Configure MCP server dialog. OAuth support in those IDEs is unverified; supply the bearer header if no sign-in appears. Organization policy may disable MCP.
 
-If the IDE cannot discover skills, append QA Wolf guidance and the skill path to existing instructions. Preserve `.github/copilot-instructions.md`.
+If the IDE needs instructions, append the QA Wolf section from `AGENTS.md` to existing instructions. Preserve `.github/copilot-instructions.md`.
 
 Sources: [VS Code skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [VS Code MCP schema](https://code.visualstudio.com/docs/agents/reference/mcp-configuration), [Copilot MCP by IDE](https://docs.github.com/en/copilot/customizing-copilot/extending-copilot-chat-with-mcp).
 
 ### Amp
 
-The shared `qawolf` skill's `mcp.json` configures MCP with no header. For direct Flow Outline or Onboarding use, configure the QA Wolf server in `amp.mcpServers` so tool availability does not depend on loading the shared skill first. A same-name directly configured server overrides the skill-local entry; review existing entries.
-
-Amp documents automatic OAuth for servers in its own `amp.mcpServers` config but not for a skill-local `mcp.json`, and `amp mcp remote login` covers only servers stored with ampcode.com. If the skill's server never prompts, move the entry into `amp.mcpServers`, or add the API key fallback header to the skill's `mcp.json`.
+Configure the QA Wolf server in `amp.mcpServers` with the URL and no header. Amp documents automatic OAuth for servers in that config, and `amp mcp remote login` covers only servers stored with ampcode.com. If the server never prompts, add the API key fallback header.
 
 Sources: [skills and skill-local MCP](https://ampcode.com/docs/customize/skills), [MCP configuration](https://ampcode.com/docs/customize/mcp).
 
@@ -368,7 +326,7 @@ Sources: [skills](https://zed.dev/docs/ai/skills), [MCP](https://zed.dev/docs/ai
 
 ### CodeWhale
 
-Install the seven sibling skills under `.codewhale/skills/`, then run:
+Run:
 
 ```bash
 codewhale mcp add qawolf --url https://app.qawolf.com/api/mcp
@@ -383,7 +341,7 @@ Sources: [skills](https://github.com/Hmbown/Codewhale/blob/main/docs/SKILLS.md),
 
 ### Swival
 
-Install the seven sibling skills under `.swival/skills/` or `.agents/skills/`. Configure `mcp_servers.qawolf` with `type = "http"` and `url`.
+Configure `mcp_servers.qawolf` with `type = "http"` and `url`.
 
 Swival's OAuth support is unverified. If it never prompts, add `headers` with a literal bearer value. Header environment expansion is unverified. Store that value in user `~/.config/swival/config.toml` or a mode-0600 JSON file selected with `--mcp-config`, never project `swival.toml`.
 
@@ -394,9 +352,6 @@ Sources: [skills](https://github.com/Swival/swival/blob/master/docs.md/skills.md
 From a reviewed checkout:
 
 ```bash
-for skill in qawolf qawolf-flow-outline qawolf-flow-maintenance qawolf-onboarding qawolf-trigger-setup qawolf-trigger-diagnostics qawolf-trigger-migration; do
-  openclaw skills install "$QAWOLF_PLUGIN_ROOT/skills/$skill" --as "$skill" || break
-done
 openclaw mcp set qawolf \
   '{"url":"https://app.qawolf.com/api/mcp","transport":"streamable-http","auth":"oauth"}'
 openclaw mcp doctor qawolf --probe
@@ -421,27 +376,13 @@ These adapters can load instructions but do not establish a verified QA Wolf too
 | ------------------------------ | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | JetBrains Junie                | Append to the existing `AGENTS.md` or `.junie/AGENTS.md`, or select a Guidelines Path | A current custom remote MCP/bearer contract was not verified for Junie; JetBrains AI Assistant is a different product |
 | Jules                          | Append a QA Wolf section to the existing root `AGENTS.md`                             | Its documented MCP picker is curated and does not accept an arbitrary QA Wolf endpoint                                |
-| Aider                          | Read the skill and its references with `--read` or an additive `read` config          | No native MCP client is documented; a separate reviewed runtime bridge would be required                              |
-| Other instruction-aware agents | Append the supplied QA Wolf guidance and point to the installed skill                 | Verify native MCP support independently                                                                               |
+| Aider                          | Append the QA Wolf section to a file that `--read` or an additive `read` config loads | No native MCP client is documented; a separate reviewed runtime bridge would be required                              |
+| Other instruction-aware agents | Append the supplied QA Wolf guidance                                                  | Verify native MCP support independently                                                                               |
 
-Append only the QA Wolf section from the supplied `AGENTS.md`, with a usable skill path. Preserve existing instructions. Without tools, stop; never simulate `agent_send` or invent test results.
-
-For Aider, load the files without replacing existing context:
-
-```bash
-aider \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf/SKILL.md" \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-flow-outline/SKILL.md" \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-flow-maintenance/SKILL.md" \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-onboarding/SKILL.md" \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-trigger-setup/SKILL.md" \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-trigger-diagnostics/SKILL.md" \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf-trigger-migration/SKILL.md" \
-  --read "$QAWOLF_PLUGIN_ROOT/skills/qawolf/references/platforms.md"
-```
+Append only the QA Wolf section from the supplied `AGENTS.md`. Preserve existing instructions. Without tools, stop; never simulate `agent_send` or invent test results.
 
 Sources: [Junie guidance](https://github.com/JetBrains/junie-guidelines#how-to-use-the-guidelines-in-junie), [Jules MCP scope](https://jules.google/docs/changelog/#mcp-support-comes-to-jules), [Aider conventions](https://aider.chat/docs/usage/conventions.html), [Aider MCP request](https://github.com/Aider-AI/aider/issues/2525).
 
 ## Updates and removal
 
-Use the original installer to update. For manual copies, review and replace only `qawolf`, `qawolf-flow-outline`, `qawolf-flow-maintenance`, `qawolf-onboarding`, `qawolf-trigger-setup`, `qawolf-trigger-diagnostics`, and `qawolf-trigger-migration`. To uninstall, remove those skill directories, the QA Wolf instruction section, and its MCP entry. Preserve other skills, settings, and credentials.
+Use the original installer to update. The agent reads each skill from the server on every call, so a skill change needs no update on your side. To uninstall, remove the plugin, the QA Wolf instruction section, and its MCP entry. Preserve other settings and credentials.
