@@ -8,23 +8,17 @@ Connect to `https://app.qawolf.com/api/mcp` and sign in with OAuth. Configure th
 
 Clients raise the sign-in in one of two ways. Codex offers it inside the conversation the first time it calls a QA Wolf tool. The ChatGPT app, Claude Code, Claude Desktop, Gemini CLI, and Copilot CLI sign in when the server is added or on first connection, or take an explicit auth command, noted with each client below.
 
-A configured `Authorization` header switches OAuth off in several clients, so leave it out unless you are using the API key fallback.
+QA Wolf accepts only OAuth, so a client that cannot complete a sign-in cannot connect. A configured `Authorization` header switches OAuth off in several clients, so leave it out.
 
 OAuth signs you in as a QA Wolf user, and the connection reaches every workspace you are a member of, across all of your organizations. `whoami` lists them, each with the organization that owns it. When there is exactly one, the connection binds to it and tools stop asking for `workspaceId`. When there are several it stays unbound, so tools that accept `workspaceId` need it, and a browser tool binds to the workspace you name on the call.
 
 A QA Wolf admin reaches every workspace, including those in organizations they are not a member of. `whoami` lists them all, and reports `canActOnAnyWorkspace`. Demo and sandbox workspaces appear only when the admin belongs to them.
 
-### API key fallback
-
-Use a team API key where a browser sign-in cannot happen, such as CI, a container, or a client with no OAuth support. Send it as `Authorization: Bearer <team-api-key>`.
-
-Get a team API key from QA Wolf and configure it outside chat. Examples use `QAWOLF_API_KEY` in the client process environment; desktop apps may not inherit terminal variables. Never put keys in prompts, command-line arguments, issues, screenshots, or source control.
-
-For staging, use `https://app.staging.qawolf.app/api/mcp`. OAuth works there too. If you use a staging API key instead, do not assume a saved production key applies.
+For staging, use `https://app.staging.qawolf.app/api/mcp`. OAuth works there too.
 
 ### Verify the connection
 
-All config examples are merge fragments. Preserve existing servers, settings, and inputs; review any existing `qawolf` entry before changing it. Keep literal credentials in protected user files, never project files.
+All config examples are merge fragments. Preserve existing servers, settings, and inputs; review any existing `qawolf` entry before changing it.
 
 Restart or reload MCP, complete any sign-in prompt, then call `whoami` to confirm identity and workspace. Onboarding needs `agent_send` and `agent_get`. Stop if sign-in cannot be completed.
 
@@ -112,7 +106,7 @@ grok plugin install 'qawolf/agent-plugins#plugins/qawolf' --trust
 grok plugin enable qawolf
 ```
 
-Review the repository before granting trust. Grok reads the Claude MCP file, so it connects with no `Authorization` header and signs in with OAuth. Grok's own OAuth handling is unverified; if no sign-in prompt appears, add the API key fallback header to its config.
+Review the repository before granting trust. Grok reads the Claude MCP file, so it connects with no `Authorization` header and signs in with OAuth. Grok's own OAuth handling is unverified.
 
 Sources: [plugins](https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/09-plugins.md), [MCP and variable expansion](https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/07-mcp-servers.md).
 
@@ -125,7 +119,7 @@ devin plugins install 'qawolf/agent-plugins#plugins/qawolf'
 devin mcp add -s user qawolf https://app.qawolf.com/api/mcp
 ```
 
-Sign in with `devin mcp login qawolf`. If Devin does not complete the flow, set a literal bearer value in `headers.Authorization` in protected user `~/.config/devin/mcp_config.json`. Header environment expansion is unverified.
+Sign in with `devin mcp login qawolf`.
 
 Sources: [plugins](https://docs.devin.ai/cli/extensibility/plugins/overview), [MCP configuration](https://docs.devin.ai/cli/extensibility/mcp/configuration).
 
@@ -139,7 +133,7 @@ qoder plugins install "$QAWOLF_PLUGIN_ROOT"
 
 Set `QAWOLF_PLUGIN_ROOT` to the absolute `plugins/qawolf` path. The manifest carries plugin metadata only; remote marketplace discovery is unverified.
 
-In protected user `~/.qoder/settings.json`, add `mcpServers.qawolf` with `type: "http"` and the QA Wolf `url`, and no `Authorization` header, so Qoder can sign in with OAuth. Qoder's OAuth support is unverified. If it never prompts, add a literal bearer value in `headers.Authorization`; header environment expansion is unverified.
+In protected user `~/.qoder/settings.json`, add `mcpServers.qawolf` with `type: "http"` and the QA Wolf `url`, and no `Authorization` header, so Qoder can sign in with OAuth. Qoder's OAuth support is unverified.
 
 Sources: [plugins](https://docs.qoder.com/cli/plugins.md), [manifest reference](https://docs.qoder.com/cli/plugins-reference.md), [MCP](https://docs.qoder.com/cli/mcp-reference.md).
 
@@ -153,18 +147,9 @@ mcp_servers:
     url: https://app.qawolf.com/api/mcp
 ```
 
-Hermes' OAuth support is unverified. If it never prompts you to sign in, save `QAWOLF_API_KEY` through Hermes' secure prompt and add the fallback header:
+Hermes' OAuth support is unverified. Reload MCP or complete Hermes' own sign-in, then call `whoami` to verify the tools.
 
-```yaml
-mcp_servers:
-  qawolf:
-    headers:
-      Authorization: Bearer ${QAWOLF_API_KEY}
-```
-
-Reload MCP or complete Hermes' own sign-in, then call `whoami` to verify the tools.
-
-Sources: [MCP secrets](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/reference/mcp-config-reference.md).
+Sources: [MCP configuration](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/reference/mcp-config-reference.md).
 
 ## OpenCode
 
@@ -187,24 +172,24 @@ Sources: [skills](https://opencode.ai/docs/skills/), [remote MCP](https://openco
 
 ## Pi
 
-Pi has [no built-in MCP support](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent#philosophy). Install a reviewed MCP extension, configure the endpoint in its format, and verify QA Wolf tools before use. Prefer an extension that handles MCP OAuth. If none is available, supply a team API key as a bearer credential.
+Pi has [no built-in MCP support](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent#philosophy). Install a reviewed MCP extension, configure the endpoint in its format, and verify QA Wolf tools before use. Use an extension that handles MCP OAuth.
 
 ## Portable clients with MCP
 
 Configure the QA Wolf MCP server in the client. The server supplies the skills, so no skill files are installed.
 
-| Client                    | MCP setup                                             |
-| ------------------------- | ----------------------------------------------------- |
-| Cursor                    | OAuth sign-in from Tools and Integrations             |
-| Windsurf                  | API key fallback; OAuth unverified                    |
-| Cline                     | API key fallback; OAuth unverified for this transport |
-| GitHub Copilot in VS Code | OAuth sign-in; no secure input needed                 |
-| Amp                       | OAuth sign-in from `amp.mcpServers`; unverified       |
-| Kiro                      | OAuth sign-in with `/mcp auth`                        |
-| Zed                       | OAuth sign-in when no header is set                   |
-| CodeWhale                 | API key fallback; OAuth unverified                    |
-| Swival                    | API key fallback; OAuth unverified                    |
-| OpenClaw                  | OAuth MCP config                                      |
+| Client                    | MCP setup                                       |
+| ------------------------- | ----------------------------------------------- |
+| Cursor                    | OAuth sign-in from Tools and Integrations       |
+| Windsurf                  | OAuth sign-in; unverified                       |
+| Cline                     | OAuth sign-in; unverified for this transport    |
+| GitHub Copilot in VS Code | OAuth sign-in; no secure input needed           |
+| Amp                       | OAuth sign-in from `amp.mcpServers`; unverified |
+| Kiro                      | OAuth sign-in with `/mcp auth`                  |
+| Zed                       | OAuth sign-in when no header is set             |
+| CodeWhale                 | OAuth sign-in; unverified                       |
+| Swival                    | OAuth sign-in; unverified                       |
+| OpenClaw                  | OAuth MCP config                                |
 
 ### Cursor
 
@@ -232,16 +217,13 @@ Merge into `~/.codeium/windsurf/mcp_config.json`.
 {
   "mcpServers": {
     "qawolf": {
-      "serverUrl": "https://app.qawolf.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer ${env:QAWOLF_API_KEY}"
-      }
+      "serverUrl": "https://app.qawolf.com/api/mcp"
     }
   }
 }
 ```
 
-Windsurf documents OAuth support for each transport but gives no configuration or sign-in detail, so this keeps the API key fallback. Try removing the header first, and leave it out if a sign-in prompt appears.
+Windsurf documents OAuth support for each transport but gives no configuration or sign-in detail, so its sign-in is unverified.
 
 Sources: [skills](https://docs.windsurf.com/windsurf/cascade/skills), [MCP](https://docs.windsurf.com/windsurf/cascade/mcp).
 
@@ -255,9 +237,6 @@ Open MCP Servers > Configure and merge this entry. The Cline CLI uses `~/.cline/
     "qawolf": {
       "type": "streamableHttp",
       "url": "https://app.qawolf.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer ${env:QAWOLF_API_KEY}"
-      },
       "disabled": false,
       "autoApprove": []
     }
@@ -265,9 +244,9 @@ Open MCP Servers > Configure and merge this entry. The Cline CLI uses `~/.cline/
 }
 ```
 
-Cline surfaces OAuth on a 401 for SSE servers from 4.1.7 on, but that path is unverified for the `streamableHttp` transport used here, so this keeps the API key fallback.
+Cline surfaces OAuth on a 401 for SSE servers from 4.1.7 on, but that path is unverified for the `streamableHttp` transport used here.
 
-Sources: [skills](https://docs.cline.bot/customization/skills), [MCP](https://docs.cline.bot/mcp/configuring-mcp-servers), [environment expansion](https://github.com/cline/cline/blob/main/apps/vscode/src/utils/envExpansion.ts).
+Sources: [skills](https://docs.cline.bot/customization/skills), [MCP](https://docs.cline.bot/mcp/configuring-mcp-servers).
 
 ### GitHub Copilot in IDEs
 
@@ -286,9 +265,9 @@ For local VS Code, merge this into your user MCP profile or `.vscode/mcp.json`.
 
 VS Code registers a client and signs you in through the browser, so no `inputs` entry is needed. Account state lives in the Accounts menu and under Manage Trusted MCP Servers.
 
-Remote Agent Host cannot run an interactive sign-in; configure its credentials separately with the API key fallback.
+Remote Agent Host cannot run an interactive sign-in, so it cannot connect.
 
-JetBrains uses `servers.qawolf.requestInit.headers`. Use Copilot Chat > Configure your MCP server and protected user settings. Visual Studio has its own Configure MCP server dialog. OAuth support in those IDEs is unverified; supply the bearer header if no sign-in appears. Organization policy may disable MCP.
+In JetBrains, use Copilot Chat > Configure your MCP server. Visual Studio has its own Configure MCP server dialog. OAuth support in those IDEs is unverified. Organization policy may disable MCP.
 
 If the IDE needs instructions, append the QA Wolf section from `AGENTS.md` to existing instructions. Preserve `.github/copilot-instructions.md`.
 
@@ -296,7 +275,7 @@ Sources: [VS Code skills](https://code.visualstudio.com/docs/copilot/customizati
 
 ### Amp
 
-Configure the QA Wolf server in `amp.mcpServers` with the URL and no header. Amp documents automatic OAuth for servers in that config, and `amp mcp remote login` covers only servers stored with ampcode.com. If the server never prompts, add the API key fallback header.
+Configure the QA Wolf server in `amp.mcpServers` with the URL and no header. Amp documents automatic OAuth for servers in that config, and `amp mcp remote login` covers only servers stored with ampcode.com.
 
 Sources: [skills and skill-local MCP](https://ampcode.com/docs/customize/skills), [MCP configuration](https://ampcode.com/docs/customize/mcp).
 
@@ -335,7 +314,7 @@ codewhale mcp validate
 codewhale mcp tools qawolf
 ```
 
-The default config is `~/.codewhale/mcp.json`. CodeWhale's OAuth support is unverified. If `mcp validate` reports an authentication failure, re-add the server with `--bearer-token-env-var QAWOLF_API_KEY`, which stores the variable name and not its value.
+The default config is `~/.codewhale/mcp.json`. CodeWhale's OAuth support is unverified.
 
 Sources: [skills](https://github.com/Hmbown/Codewhale/blob/main/docs/SKILLS.md), [MCP](https://github.com/Hmbown/Codewhale/blob/main/docs/MCP.md).
 
@@ -343,7 +322,7 @@ Sources: [skills](https://github.com/Hmbown/Codewhale/blob/main/docs/SKILLS.md),
 
 Configure `mcp_servers.qawolf` with `type = "http"` and `url`.
 
-Swival's OAuth support is unverified. If it never prompts, add `headers` with a literal bearer value. Header environment expansion is unverified. Store that value in user `~/.config/swival/config.toml` or a mode-0600 JSON file selected with `--mcp-config`, never project `swival.toml`.
+Swival's OAuth support is unverified.
 
 Sources: [skills](https://github.com/Swival/swival/blob/master/docs.md/skills.md), [MCP](https://github.com/Swival/swival/blob/master/docs.md/mcp.md).
 
@@ -357,16 +336,11 @@ openclaw mcp set qawolf \
 openclaw mcp doctor qawolf --probe
 ```
 
-OpenClaw's OAuth support is unverified. If `mcp doctor` reports an authentication failure, set a static header instead. Single quotes preserve the variable placeholder:
-
-```bash
-openclaw mcp set qawolf \
-  '{"url":"https://app.qawolf.com/api/mcp","transport":"streamable-http","headers":{"Authorization":"Bearer ${QAWOLF_API_KEY}"}}'
-```
+OpenClaw's OAuth support is unverified.
 
 There is no claimed QA Wolf ClawHub listing; do not install an unrelated package by name.
 
-Sources: [skills](https://github.com/openclaw/openclaw/blob/main/docs/tools/skills.md), [MCP CLI](https://github.com/openclaw/openclaw/blob/main/docs/cli/mcp.md), [environment substitution](https://github.com/openclaw/openclaw/blob/main/docs/gateway/configuration.md#environment-variables).
+Sources: [skills](https://github.com/openclaw/openclaw/blob/main/docs/tools/skills.md), [MCP CLI](https://github.com/openclaw/openclaw/blob/main/docs/cli/mcp.md).
 
 ## Guidance-only clients
 

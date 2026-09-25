@@ -10,9 +10,9 @@ QA Wolf clients connect to `https://app.qawolf.com/api/mcp` and sign in with OAu
 
 No API key is needed. Do not add an `Authorization` header to the plugin's MCP entry; in Claude Code and Codex a configured header switches OAuth off and the connection fails with HTTP 401.
 
-Where a browser sign-in cannot happen, such as CI or a container, use the API key fallback described in [platform setup](PLATFORMS.md). Keep any key out of shell history, source control, chats, issues, and screenshots.
+QA Wolf accepts only OAuth, so it cannot be reached where a browser sign-in cannot happen, such as CI or a container.
 
-OAuth reaches every workspace you are a member of, across all of your organizations. `whoami` lists them with the organization that owns each one. When there is exactly one the connection binds to it; otherwise pass `workspaceId`, and a browser tool binds to the workspace you name. A team API key is always bound to its team.
+OAuth reaches every workspace you are a member of, across all of your organizations. `whoami` lists them with the organization that owns each one. When there is exactly one the connection binds to it; otherwise pass `workspaceId`, and a browser tool binds to the workspace you name.
 
 ## Install in Claude Code
 
@@ -69,7 +69,7 @@ The MCP server serves the skills through two tools. `skill_list` names them with
 - **Trigger Migration** (`qawolf-trigger-migration`) moves a workspace off legacy triggers. It reads every legacy trigger, presents one complete plan as a dry run, creates every replacement only after approval of the whole plan, and pauses the legacy triggers afterwards without deleting anything.
 - **QA Wolf** (`qawolf`) supplies shared connection and safety guidance, plus existing-test operations.
 
-Your new-flow or onboarding request covers billed browser use and routine staging exploration without a separate permission prompt. Your coding agent displays the full AAA before asking for approval, then shares the session URL before monitoring. It continues silently when status is unchanged and verifies publication and readiness before reporting completion. An onboarding first flow becomes active once its run passes, with no draft-or-active question; a flow you ask for by name still lets you choose. Activation makes a flow eligible for triggered suites, so it runs on its own only once Trigger Setup or an existing trigger covers it. Move any flow back to draft in the app.
+Your new-flow or onboarding request covers billed browser use and routine staging exploration without a separate permission prompt. Your coding agent displays the full AAA before asking for approval, then shares the session URL before monitoring. It continues silently when status is unchanged and verifies publication and readiness before reporting completion. A new flow becomes active once its run passes, with no draft-or-active question, unless you ask for it to stay a draft. Activation makes a flow eligible for triggered suites, so it runs on its own only once Trigger Setup or an existing trigger covers it. Move any flow back to draft in the app.
 
 ## Try it
 
@@ -85,7 +85,7 @@ A cloud browser bills while its runner exists. The skill instructs the agent to 
 - Connection failure or HTTP 404: check the configured URL. Reinstalling the plugin cannot fix an unavailable service.
 - Sign-in never starts and the connection reports HTTP 401: an `Authorization` header is configured somewhere. Claude Code and Codex skip OAuth when one is set. Remove it from your own `qawolf` MCP entry and reconnect.
 - Sign-in fails or the session expires: run `claude mcp login plugin:qawolf:qawolf`, or `codex mcp login qawolf`, and complete the browser flow again.
-- Browser-tool authorization error: the connection reaches several workspaces, so it is not bound to one. Call `whoami`, then pass `workspaceId` for the workspace you want, or use a team API key already bound to it.
+- Browser-tool authorization error: the connection reaches several workspaces, so it is not bound to one. Call `whoami`, then pass `workspaceId` for the workspace you want.
 - Missing agent tools: coverage requests require both `agent_send` and `agent_get`. Contact QA Wolf support if either is unavailable.
 
 Use the [platform guide](PLATFORMS.md) for client-specific connection settings. Never send a QA Wolf API key or OAuth token to an untrusted endpoint.
