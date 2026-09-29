@@ -63,6 +63,7 @@ The MCP server serves the skills through two tools. `skill_list` names them with
 - **Flow Outline** (`qawolf-flow-outline`) handles every request to create a flow, including finishing a draft and covering a pull request. Your coding agent explores through runner computer use, finds context independently, and uses the ask-user tool for gaps. It presents Arrange, Act, Assert outlines for approval both as a message and through `propose_outline`, which draws them in a card in the clients that support one, sends approved outlines through `agent_send`, and monitors creation.
 - **Runner** (`qawolf-runner`) covers driving the cloud browser: launching on the page the work starts from, batching actions, reading frames, signing in or up, and ending the runner.
 - **Flow Maintenance** (`qawolf-flow-maintenance`) repairs a flow that already exists and has started failing. It reads the recorded run and diagnosis, then hands the fix to `agent_send` without launching a runner.
+- **Bug Triage** (`qawolf-bug-triage`) reviews open bug reports, checks their reproducing runs, and sets priorities that decide which bugs block a release.
 - **Onboarding** (`qawolf-onboarding`) chooses the best first flow and reads Flow Outline, then hands off to Trigger Setup once the flow is active. A request that already names the new flow goes directly to Flow Outline.
 - **Trigger Setup** (`qawolf-trigger-setup`) makes flows run automatically. It reads the repository's CI, recommends a deployment trigger through GitHub or GitLab Deployments or a `deployment.reportStatus` call, and finishes with a scheduled trigger when the pipeline will not change.
 - **Trigger Diagnostics** (`qawolf-trigger-diagnostics`) answers why a trigger did not run. It reads the deployments QA Wolf received and each trigger's recorded verdict, explains the outcome in the user's terms, and changes nothing; the fix it proposes is made elsewhere.
@@ -76,6 +77,7 @@ Your new-flow or onboarding request covers billed browser use and routine stagin
 - "Onboard this app to QA Wolf and find the best first flow."
 - "Create a QA Wolf flow for checkout."
 - "Run the smoke-tagged QA Wolf flows and summarize what failed."
+- "Triage all the QA Wolf bugs."
 - "Open a QA Wolf browser and reproduce the login bug."
 
 A cloud browser bills while its runner exists. The skill instructs the agent to terminate the runner when the work ends.

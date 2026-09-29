@@ -46,7 +46,7 @@ Let the client handle the browser callback and token storage. If the browser doe
 
 To sign in by hand, Claude Code needs the plugin-scoped server name, `claude mcp login plugin:qawolf:qawolf`. The bare name does not resolve for a plugin server. Codex uses `codex mcp login qawolf`. Both have a matching `logout`.
 
-Claude accepts `QAWOLF_MCP_URL` overrides. Codex uses a literal URL; use a reviewed local copy for staging.
+Both plugins use a literal URL, so use a reviewed local copy for staging.
 
 ## ChatGPT app
 

@@ -2,7 +2,7 @@
   "mcpServers": {
     "qawolf": {
       "type": "http",
-      "url": "${QAWOLF_MCP_URL:-https://app.qawolf.com/api/mcp}"
+      "url": "https://app.qawolf.com/api/mcp"
     }
   }
 }

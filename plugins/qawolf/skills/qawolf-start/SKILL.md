@@ -1,6 +1,6 @@
 ---
 name: qawolf-start
-description: Use before any QA Wolf work, including onboarding an application, choosing a first test, outlining or creating a flow, running flows, reading run results, repairing a failing flow, setting up triggers, and driving the QA Wolf cloud browser. Routes to the skill that covers the request, which the QA Wolf MCP server serves through skill_list and skill_get.
+description: Use before any QA Wolf work, including onboarding an application, choosing a first test, outlining or creating a flow, running flows, reading run results, repairing a failing flow, triaging bug reports, setting up triggers, and driving the QA Wolf cloud browser. Routes to the skill that covers the request, which the QA Wolf MCP server serves through skill_list and skill_get.
 ---
 
 # Start with QA Wolf
