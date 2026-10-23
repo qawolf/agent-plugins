@@ -64,6 +64,7 @@ The MCP server serves the skills through two tools. `skill_list` names them with
 - **Runner** (`qawolf-runner`) covers driving the cloud browser: launching on the page the work starts from, batching actions, reading frames, signing in or up, and ending the runner.
 - **Flow Maintenance** (`qawolf-flow-maintenance`) repairs a flow that already exists and has started failing. It reads the recorded run and diagnosis, then hands the fix to `agent_send` without launching a runner.
 - **Bug Triage** (`qawolf-bug-triage`) reviews open bug reports, checks their reproducing runs, and sets priorities that decide which bugs block a release.
+- **Blockers** (`qawolf-blockers`) answers the questions QA Wolf is waiting on. It researches each blocker's ask in your code, pull requests, tickets, and docs, answers only with cited sources, and lists the rest with who most likely knows.
 - **Onboarding** (`qawolf-onboarding`) chooses the best first flow and reads Flow Outline, then hands off to Trigger Setup once the flow is active. A request that already names the new flow goes directly to Flow Outline.
 - **Trigger Setup** (`qawolf-trigger-setup`) makes flows run automatically. It reads the repository's CI, recommends a deployment trigger through GitHub or GitLab Deployments or a `deployment.reportStatus` call, and finishes with a scheduled trigger when the pipeline will not change.
 - **Trigger Diagnostics** (`qawolf-trigger-diagnostics`) answers why a trigger did not run. It reads the deployments QA Wolf received and each trigger's recorded verdict, explains the outcome in the user's terms, and changes nothing; the fix it proposes is made elsewhere.
@@ -78,6 +79,7 @@ Your new-flow or onboarding request covers billed browser use and routine stagin
 - "Create a QA Wolf flow for checkout."
 - "Run the smoke-tagged QA Wolf flows and summarize what failed."
 - "Triage all the QA Wolf bugs."
+- "Solve all the QA Wolf blockers you can."
 - "Open a QA Wolf browser and reproduce the login bug."
 
 A cloud browser bills while its runner exists. The skill instructs the agent to terminate the runner when the work ends.
