@@ -8,7 +8,7 @@
       "name": "qawolf",
       "source": {
         "source": "local",
-        "path": "./plugins/qawolf"
+        "path": "./plugins/qawolf-codex"
       },
       "policy": {
         "installation": "AVAILABLE",
