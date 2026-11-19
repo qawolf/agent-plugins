@@ -12,6 +12,7 @@ The MCP server supplies the skills. Call `skill_list` to see them, then `skill_g
 - To fix, answer, solve or handle QA Wolf blockers, or to find what QA Wolf is waiting on, read `qawolf-blockers`. It researches each blocker in the application's own sources and answers only the ones it can cite.
 - For onboarding or choosing a first flow, read `qawolf-onboarding`. It selects the best candidate, reads Flow Outline, and hands off to Trigger Setup once the first flow is active.
 - To make flows run automatically, on deploys or on a schedule, read `qawolf-trigger-setup`. It recommends a deployment trigger first and never creates a trigger without the user agreeing to what it runs and where.
+- To set up the coding agent that QA Wolf hands bugs to, read `qawolf-set-up-coding-agent`. It sets up a GitHub workflow, a GitLab job, or a signed webhook, and never handles the agent's key.
 - To explain why a trigger did not run, read `qawolf-trigger-diagnostics`. It reads the deployments QA Wolf received and each trigger's recorded verdict, answers in the user's terms, and changes nothing.
 - To move a workspace off legacy triggers, read `qawolf-trigger-migration`. It presents one complete plan as a dry run, creates every replacement only after the user approves the whole plan, and pauses the legacy triggers afterwards; nothing is deleted.
 - For any other test operation, read `qawolf` for the shared connection and safety rules.
