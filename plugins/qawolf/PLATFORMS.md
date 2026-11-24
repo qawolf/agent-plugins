@@ -54,6 +54,8 @@ ChatGPT does not take MCP servers from an installed plugin, so add QA Wolf as a 
 
 Then ask QA Wolf for something in a new chat. On a Business or Enterprise workspace an administrator can publish the same URL once for every member, which replaces the setup above.
 
+When QA Wolf offers events to your workspace, a Work chat can watch them. Ask, for example, "Tell me when this run settles." ChatGPT subscribes with a webhook and continues the chat when the event arrives.
+
 Installing the plugin still gives Codex the tools. Its starter prompt, "Verify my QA Wolf connection and workspace", calls `whoami` and reports the workspaces you can act on.
 
 ## Claude Desktop
